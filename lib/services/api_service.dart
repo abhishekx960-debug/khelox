@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -113,6 +114,11 @@ class ApiService {
     });
     return UserModel.fromJson(data['user'] as Map<String, dynamic>);
   }
+
+  static Future<UserModel> fetchUser(int id) async {
+    final data = await _post('user.php', {'id': id});
+    return UserModel.fromJson(data['user'] as Map<String, dynamic>);
+  }
 }
 
 class SessionService {
@@ -137,5 +143,68 @@ class SessionService {
   static Future<void> clear() async {
     final p = await SharedPreferences.getInstance();
     await p.remove(_key);
+  }
+}
+
+
+/// Global realtime user/balance holder.
+/// Poll har 10 sec + app resume pe refresh. UI ValueListenableBuilder se sune.
+class UserStore with WidgetsBindingObserver {
+  UserStore._();
+  static final UserStore instance = UserStore._();
+
+  static const _interval = Duration(seconds: 10);
+
+  final ValueNotifier<UserModel?> user = ValueNotifier(null);
+  Timer? _timer;
+  bool _busy = false;
+
+  void start(UserModel u) {
+    user.value = u;
+    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance.addObserver(this);
+    _startTimer();
+    refresh();
+  }
+
+  void stop() {
+    _timer?.cancel();
+    _timer = null;
+    WidgetsBinding.instance.removeObserver(this);
+    user.value = null;
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(_interval, (_) => refresh());
+  }
+
+  /// Game reward / match entry ke baad bhi ye call kar sakte ho.
+  /// silent=false → error upar throw (pull-to-refresh me msg dikhane ke liye).
+  Future<void> refresh({bool silent = true}) async {
+    final u = user.value;
+    if (u == null || _busy) return;
+    _busy = true;
+    try {
+      final fresh = await ApiService.fetchUser(u.id);
+      if (user.value == null) return; // logout ho gaya beech me
+      user.value = fresh;
+      await SessionService.save(fresh);
+    } catch (e) {
+      debugPrint('UserStore.refresh failed: $e');
+      if (!silent) rethrow;
+    } finally {
+      _busy = false;
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      refresh();
+      _startTimer();
+    } else if (state == AppLifecycleState.paused) {
+      _timer?.cancel();
+    }
   }
 }
