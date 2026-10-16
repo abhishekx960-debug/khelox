@@ -5,6 +5,11 @@ import '../widgets/auth_widgets.dart';
 import '../widgets/coin_chip.dart';
 import '../widgets/game_tile.dart';
 import '../widgets/khelox_app_bar.dart';
+import 'captcha_screen.dart';
+import 'daily_checkin_screen.dart';
+import 'scratch_card_screen.dart';
+import 'spin_wheel_screen.dart';
+import 'surveys_screen.dart';
 
 /// Home = FREE ZONE + PREMIUM ZONE (switch tabs at top or swipe to change)
 class HomeScreen extends StatefulWidget {
@@ -35,6 +40,22 @@ class _HomeScreenState extends State<HomeScreen> {
     if (i != _zone) setState(() => _zone = i);
   }
 
+  Widget? _freeScreen(int i) {
+    switch (i) {
+      case 0:
+        return const SpinWheelScreen();
+      case 1:
+        return const ScratchCardScreen();
+      case 2:
+        return const CaptchaScreen();
+      case 3:
+        return const DailyCheckInScreen();
+      case 4:
+        return const SurveysScreen();
+    }
+    return null;
+  }
+
   Widget _grid(int zone) {
     final premium = zone == 1;
     final games = premium ? _premiumGames : _freeGames;
@@ -49,12 +70,21 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisSpacing: 16,
         childAspectRatio: premium ? 0.92 : 1.0,
         children: [
-          for (final g in games)
+          for (var i = 0; i < games.length; i++)
             GameTile(
-              title: g.$1,
-              icon: g.$2,
-              color: g.$3,
-              onTap: () => showMsg(context, '${g.$1} - coming soon'),
+              title: games[i].$1,
+              icon: games[i].$2,
+              color: games[i].$3,
+              onTap: () {
+                final screen = premium ? null : _freeScreen(i);
+                if (screen == null) {
+                  showMsg(context, '${games[i].$1} - coming soon');
+                } else {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => screen),
+                  );
+                }
+              },
             ),
         ],
       ),
