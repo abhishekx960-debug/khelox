@@ -32,7 +32,7 @@ class WalletScreen extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
           children: [
             const Text(
-              'AAPKA BALANCE',
+              'YOUR BALANCE',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,

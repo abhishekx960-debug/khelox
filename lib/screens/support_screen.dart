@@ -4,7 +4,7 @@ import '../theme/app_theme.dart';
 import '../widgets/auth_widgets.dart';
 import '../widgets/khelox_app_bar.dart';
 
-// TODO: apni real details daalo
+// TODO: put your real details here
 const String kSupportEmail = 'support@khelox.com';
 const String kSupportWhatsapp = '+91 00000 00000';
 const String kSupportHours = '10:00 AM - 8:00 PM (IST)';
@@ -14,30 +14,30 @@ class SupportScreen extends StatelessWidget {
 
   static const _faqs = <(String, String)>[
     (
-      'Fcoin, Dcoin aur Wcoin kya hai?',
-      'Fcoin = Free Coin (free games se milta hai). '
-          'Dcoin = Deposit Coin (deposit se aata hai). '
-          'Wcoin = Winning Coin (match jeetne pe milta hai).',
+      'What are Fcoin, Dcoin and Wcoin?',
+      'Fcoin = Free Coin (earned from free games). '
+          'Dcoin = Deposit Coin (received from deposits). '
+          'Wcoin = Winning Coin (earned by winning matches).',
     ),
     (
-      'Mera balance update nahi hua',
-      'Wallet screen me neeche kheench kar refresh karo. '
-          'Phir bhi na dikhe to support se contact karo.',
+      'My balance did not update',
+      'Pull down on the Wallet screen to refresh. '
+          'If it still does not update, please contact support.',
     ),
     (
-      'Password ya login problem hai',
-      'Sahi email aur password check karo. Dikkat rahe to apne registered '
-          'email se hume likho.',
+      'Password or login problem',
+      'Check your email and password. If the issue continues, write to us '
+          'from your registered email.',
     ),
     (
-      'Match me problem aayi',
-      'Match ka naam, time aur screenshot ke saath support ko message bhejo.',
+      'Problem during a match',
+      'Send us the match name, time and a screenshot to support.',
     ),
   ];
 
   void _copy(BuildContext context, String label, String value) {
     Clipboard.setData(ClipboardData(text: value));
-    showMsg(context, '$label copy ho gaya');
+    showMsg(context, '$label copied');
   }
 
   Widget _contactCard(
@@ -102,7 +102,7 @@ class SupportScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
         children: [
           const Text(
-            'Koi problem hai? Hum madad ke liye hain.',
+            'Having a problem? We are here to help.',
             style: TextStyle(color: AppColors.mist, fontSize: 14.5),
           ),
           const SizedBox(height: 20),

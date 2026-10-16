@@ -1,0 +1,5 @@
+Options -Indexes
+<FilesMatch "^(config\.php)$">
+  # direct browser se config open na ho (vaise ye kuch print nahi karta, extra safety)
+  Require all denied
+</FilesMatch>

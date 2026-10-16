@@ -69,8 +69,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               autofillHints: const [AutofillHints.name],
               validator: (v) {
                 final s = (v ?? '').trim();
-                if (s.isEmpty) return 'Naam daalo';
-                if (s.length < 2) return 'Naam bahut chhota hai';
+                if (s.isEmpty) return 'Enter your name';
+                if (s.length < 2) return 'Name is too short';
                 return null;
               },
             ),
@@ -83,9 +83,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               autofillHints: const [AutofillHints.email],
               validator: (v) {
                 final s = (v ?? '').trim();
-                if (s.isEmpty) return 'Email daalo';
+                if (s.isEmpty) return 'Enter email';
                 if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(s)) {
-                  return 'Sahi email daalo';
+                  return 'Enter a valid email';
                 }
                 return null;
               },
@@ -99,9 +99,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               autofillHints: const [AutofillHints.telephoneNumber],
               validator: (v) {
                 final s = (v ?? '').trim();
-                if (s.isEmpty) return 'Phone number daalo';
+                if (s.isEmpty) return 'Enter phone number';
                 if (!RegExp(r'^\+?\d{10,15}$').hasMatch(s)) {
-                  return 'Sahi phone number daalo (10-15 digits)';
+                  return 'Enter a valid phone number (10-15 digits)';
                 }
                 return null;
               },
@@ -122,8 +122,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 onPressed: () => setState(() => _hide = !_hide),
               ),
               validator: (v) {
-                if (v == null || v.isEmpty) return 'Password daalo';
-                if (v.length < 6) return 'Kam se kam 6 characters';
+                if (v == null || v.isEmpty) return 'Enter password';
+                if (v.length < 6) return 'At least 6 characters';
                 return null;
               },
             ),
@@ -138,7 +138,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'Pehle se account hai? ',
+                  'Already have an account? ',
                   style: TextStyle(color: AppColors.mist),
                 ),
                 GestureDetector(

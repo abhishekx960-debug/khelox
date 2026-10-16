@@ -6,7 +6,7 @@ import '../widgets/coin_chip.dart';
 import '../widgets/game_tile.dart';
 import '../widgets/khelox_app_bar.dart';
 
-/// Home = FREE ZONE + PREMIUM ZONE (top switch ya swipe se badlo)
+/// Home = FREE ZONE + PREMIUM ZONE (switch tabs at top or swipe to change)
 class HomeScreen extends StatefulWidget {
   final UserModel user;
   const HomeScreen({super.key, required this.user});

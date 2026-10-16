@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return AuthScaffold(
       title: 'WELCOME BACK',
-      subtitle: 'Login karo aur game on karo',
+      subtitle: 'Login and start playing',
       child: Form(
         key: _formKey,
         child: Column(
@@ -65,9 +65,9 @@ class _LoginScreenState extends State<LoginScreen> {
               autofillHints: const [AutofillHints.email],
               validator: (v) {
                 final s = (v ?? '').trim();
-                if (s.isEmpty) return 'Email daalo';
+                if (s.isEmpty) return 'Enter email';
                 if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(s)) {
-                  return 'Sahi email daalo';
+                  return 'Enter a valid email';
                 }
                 return null;
               },
@@ -88,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () => setState(() => _hide = !_hide),
               ),
               validator: (v) =>
-                  (v == null || v.isEmpty) ? 'Password daalo' : null,
+                  (v == null || v.isEmpty) ? 'Enter password' : null,
             ),
             const SizedBox(height: 28),
             GoldButton(text: 'Login', loading: _loading, onPressed: _submit),
@@ -97,7 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'Naya user? ',
+                  'New user? ',
                   style: TextStyle(color: AppColors.mist),
                 ),
                 GestureDetector(

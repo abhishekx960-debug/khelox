@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import '../services/api_service.dart';
-import '../services/settings_service.dart';
 import '../theme/app_icons.dart';
 import '../theme/app_theme.dart';
-import '../widgets/coin_chip.dart';
 import '../widgets/khelox_app_bar.dart';
 import 'login_screen.dart';
+import 'notifications_screen.dart';
 import 'privacy_policy_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -26,27 +25,12 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _notif = true;
-
-  @override
-  void initState() {
-    super.initState();
-    SettingsService.notificationsOn().then((v) {
-      if (mounted) setState(() => _notif = v);
-    });
-  }
-
-  void _toggleNotif(bool v) {
-    setState(() => _notif = v);
-    SettingsService.setNotifications(v);
-  }
-
   Future<void> _logout() async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Logout?'),
-        content: const Text('Kya aap logout karna chahte ho?'),
+        content: const Text('Are you sure you want to logout?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -130,7 +114,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
 
-          const _SectionLabel('WALLET'),
+          const SizedBox(height: 20),
           _Group(children: [
             _Tile(
               icon: const HugeIcon(
@@ -141,15 +125,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               color: AppColors.gold,
               title: 'My Wallet',
-              subtitle: 'Fcoin ${formatCoin(user.fcoin)}  •  '
-                  'Dcoin ${formatCoin(user.dcoin)}  •  '
-                  'Wcoin ${formatCoin(user.wcoin)}',
               onTap: widget.onOpenWallet,
             ),
-          ]),
-
-          const _SectionLabel('PREFERENCES'),
-          _Group(children: [
             _Tile(
               icon: const HugeIcon(
                 icon: AppIcons.notification,
@@ -159,14 +136,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               color: AppColors.cyan,
               title: 'Notifications',
-              subtitle: _notif ? 'On' : 'Off',
-              onTap: () => _toggleNotif(!_notif),
-              trailing: Switch(value: _notif, onChanged: _toggleNotif),
+              subtitle: 'Always on',
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const NotificationsScreen(),
+                ),
+              ),
             ),
-          ]),
-
-          const _SectionLabel('HELP & LEGAL'),
-          _Group(children: [
             _Tile(
               icon: const HugeIcon(
                 icon: AppIcons.support,
@@ -176,7 +152,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               color: const Color(0xFF6FB3A8),
               title: 'Customer Support',
-              subtitle: 'FAQ aur contact details',
+              subtitle: 'FAQ and contact details',
               onTap: widget.onOpenSupport,
             ),
             _Tile(
@@ -219,27 +195,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  final String text;
-  const _SectionLabel(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 26, 0, 10),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 1.6,
-          color: AppColors.cyan,
-        ),
       ),
     );
   }

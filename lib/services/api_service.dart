@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Backend folder URL (HTTPS zaroori, trailing slash nahi).
+/// Backend folder URL (HTTPS required, no trailing slash).
 const String kApiBaseUrl = 'https://blackxmarket.shop/KheloX/khelox-backend';
 
 class ApiException implements Exception {
@@ -81,11 +81,11 @@ class ApiService {
     } on ApiException {
       rethrow;
     } on TimeoutException {
-      throw ApiException('Server slow hai. Dobara try karo.');
+      throw ApiException('Server is slow. Please try again.');
     } on SocketException {
-      throw ApiException('Internet connection check karo.');
+      throw ApiException('Please check your internet connection.');
     } on FormatException {
-      throw ApiException('Server se galat response aaya.');
+      throw ApiException('Invalid response from server.');
     }
   }
 
@@ -148,7 +148,7 @@ class SessionService {
 
 
 /// Global realtime user/balance holder.
-/// Poll har 10 sec + app resume pe refresh. UI ValueListenableBuilder se sune.
+/// Polls every 10 sec and refreshes on app resume. UI listens via ValueListenableBuilder.
 class UserStore with WidgetsBindingObserver {
   UserStore._();
   static final UserStore instance = UserStore._();
@@ -180,14 +180,14 @@ class UserStore with WidgetsBindingObserver {
   }
 
   /// Game reward / match entry ke baad bhi ye call kar sakte ho.
-  /// silent=false → error upar throw (pull-to-refresh me msg dikhane ke liye).
+  /// silent=false → rethrow error (to show a message on pull-to-refresh).
   Future<void> refresh({bool silent = true}) async {
     final u = user.value;
     if (u == null || _busy) return;
     _busy = true;
     try {
       final fresh = await ApiService.fetchUser(u.id);
-      if (user.value == null) return; // logout ho gaya beech me
+      if (user.value == null) return; // logged out in the meantime
       user.value = fresh;
       await SessionService.save(fresh);
     } catch (e) {

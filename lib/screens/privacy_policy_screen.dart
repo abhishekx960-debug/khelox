@@ -6,38 +6,38 @@ import 'support_screen.dart';
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
 
-  // TODO: apni final policy yahan daalo (legal review ke baad).
+  // TODO: put your final policy here (after legal review).
   static const _sections = <(String, String)>[
     (
-      '1. Hum kya information lete hain',
-      'Registration ke time aapka naam, email, phone number aur password '
-          '(encrypted form me) liya jata hai. App me aapka coin balance '
-          '(Fcoin, Dcoin, Wcoin) aur game activity bhi save hoti hai.',
+      '1. Information We Collect',
+      'During registration we collect your name, email, phone number and '
+          'password (stored in encrypted form). Your coin balance '
+          '(Fcoin, Dcoin, Wcoin) and game activity are also saved in the app.',
     ),
     (
-      '2. Information ka use',
-      'Aapka account chalane, login karane, coins/wallet dikhane, support '
-          'dene aur app behtar banane ke liye use hota hai.',
+      '2. How We Use Information',
+      'Your information is used to run your account, log you in, show '
+          'coins/wallet, provide support and improve the app.',
     ),
     (
-      '3. Data sharing',
-      'Hum aapka personal data bechte nahi hain. Sirf kanooni zaroorat ya '
-          'service chalane ke liye zaroori partners ke saath share ho sakta hai.',
+      '3. Data Sharing',
+      'We do not sell your personal data. It may be shared only when legally '
+          'required or with essential partners needed to run the service.',
     ),
     (
       '4. Security',
-      'Passwords hashed form me store hote hain aur server se baat HTTPS '
-          'par hoti hai. Phir bhi koi system 100% surakshit nahi hota, isliye '
-          'apna password kisi ko na batayein.',
+      'Passwords are stored in hashed form and all communication with the '
+          'server happens over HTTPS. No system is 100% secure, so never '
+          'share your password with anyone.',
     ),
     (
-      '5. Aapke adhikar',
-      'Aap apna data dekhne, sahi karwane ya account delete karwane ke liye '
-          'support se contact kar sakte hain.',
+      '5. Your Rights',
+      'You can contact support to view, correct or delete your data, or to '
+          'delete your account.',
     ),
     (
       '6. Contact',
-      'Privacy se jude sawal ke liye: $kSupportEmail',
+      'For privacy-related questions: $kSupportEmail',
     ),
   ];
 
@@ -58,7 +58,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           const Text(
-            'Aapki privacy hamare liye important hai.',
+            'Your privacy matters to us.',
             style: TextStyle(color: AppColors.mist),
           ),
           const SizedBox(height: 20),
