@@ -45,9 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisCount: 2,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        crossAxisSpacing: 14,
-        mainAxisSpacing: 14,
-        childAspectRatio: premium ? 0.9 : 1.0,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: premium ? 0.92 : 1.0,
         children: [
           for (final g in games)
             GameTile(
@@ -67,7 +67,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final premium = _zone == 1;
 
     return Scaffold(
-      appBar: kheloxAppBar(
+      appBar: KheloxAppBar(
+        'Home',
+        brand: true,
         actions: premium
             ? [
                 CoinChip(type: CoinType.dcoin, value: user.dcoin),
@@ -76,10 +78,10 @@ class _HomeScreenState extends State<HomeScreen> {
             : [CoinChip(type: CoinType.fcoin, value: user.fcoin)],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
         children: [
           _ZoneSwitch(index: _zone, onChanged: _setZone),
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
           GestureDetector(
             onHorizontalDragEnd: (d) {
               final v = d.primaryVelocity ?? 0;
@@ -138,16 +140,16 @@ class _ZoneSwitch extends StatelessWidget {
             builder: (_, c, __) => Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, size: 18, color: c),
-                const SizedBox(width: 6),
+                Icon(icon, size: 19, color: c),
+                const SizedBox(width: 7),
                 Flexible(
                   child: Text(
                     text,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 13.5,
                       fontWeight: FontWeight.w800,
-                      letterSpacing: 0.8,
+                      letterSpacing: 0.6,
                       color: c,
                     ),
                   ),

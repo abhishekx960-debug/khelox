@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../services/api_service.dart';
+import '../theme/app_icons.dart';
+import '../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'settings_screen.dart';
 import 'support_screen.dart';
@@ -55,23 +58,63 @@ class _MainShellState extends State<MainShell> {
             onDestinationSelected: _go,
             destinations: const [
               NavigationDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home_rounded),
+                icon: HugeIcon(
+                  icon: AppIcons.home,
+                  size: 24,
+                  color: AppColors.mist,
+                  strokeWidth: 1.7,
+                ),
+                selectedIcon: HugeIcon(
+                  icon: AppIcons.home,
+                  size: 24,
+                  color: AppColors.gold,
+                  strokeWidth: 2,
+                ),
                 label: 'Home',
               ),
               NavigationDestination(
-                icon: Icon(Icons.account_balance_wallet_outlined),
-                selectedIcon: Icon(Icons.account_balance_wallet_rounded),
+                icon: HugeIcon(
+                  icon: AppIcons.wallet,
+                  size: 24,
+                  color: AppColors.mist,
+                  strokeWidth: 1.7,
+                ),
+                selectedIcon: HugeIcon(
+                  icon: AppIcons.wallet,
+                  size: 24,
+                  color: AppColors.gold,
+                  strokeWidth: 2,
+                ),
                 label: 'Wallet',
               ),
               NavigationDestination(
-                icon: Icon(Icons.support_agent_outlined),
-                selectedIcon: Icon(Icons.support_agent_rounded),
+                icon: HugeIcon(
+                  icon: AppIcons.support,
+                  size: 24,
+                  color: AppColors.mist,
+                  strokeWidth: 1.7,
+                ),
+                selectedIcon: HugeIcon(
+                  icon: AppIcons.support,
+                  size: 24,
+                  color: AppColors.gold,
+                  strokeWidth: 2,
+                ),
                 label: 'Support',
               ),
               NavigationDestination(
-                icon: Icon(Icons.settings_outlined),
-                selectedIcon: Icon(Icons.settings_rounded),
+                icon: HugeIcon(
+                  icon: AppIcons.settings,
+                  size: 24,
+                  color: AppColors.mist,
+                  strokeWidth: 1.7,
+                ),
+                selectedIcon: HugeIcon(
+                  icon: AppIcons.settings,
+                  size: 24,
+                  color: AppColors.gold,
+                  strokeWidth: 2,
+                ),
                 label: 'Settings',
               ),
             ],

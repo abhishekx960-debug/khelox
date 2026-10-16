@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../widgets/khelox_app_bar.dart';
 import 'support_screen.dart';
 
 class PrivacyPolicyScreen extends StatelessWidget {
@@ -43,20 +44,15 @@ class PrivacyPolicyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Privacy Policy',
-          style: TextStyle(fontWeight: FontWeight.w800),
-        ),
-      ),
+      appBar: const KheloxAppBar('Privacy Policy'),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
         children: [
           const Text(
             'KheloX Privacy Policy',
             style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
+              fontSize: 21,
+              fontWeight: FontWeight.w800,
               color: Colors.white,
             ),
           ),

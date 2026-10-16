@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../services/api_service.dart';
 import '../services/settings_service.dart';
+import '../theme/app_icons.dart';
 import '../theme/app_theme.dart';
 import '../widgets/coin_chip.dart';
 import '../widgets/khelox_app_bar.dart';
@@ -74,29 +76,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final user = widget.user;
 
     return Scaffold(
-      appBar: kheloxAppBar(),
+      appBar: const KheloxAppBar('Settings'),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
         children: [
-          const Text(
-            'SETTINGS',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.5,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 16),
-
           // Profile
           Container(
             padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: AppColors.slate.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.teal.withValues(alpha: 0.5)),
-            ),
+            decoration: AppTheme.surfaceCard(border: AppColors.line, radius: 20),
             child: Row(
               children: [
                 CircleAvatar(
@@ -146,7 +133,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const _SectionLabel('WALLET'),
           _Group(children: [
             _Tile(
-              icon: Icons.account_balance_wallet_rounded,
+              icon: const HugeIcon(
+                icon: AppIcons.wallet,
+                color: AppColors.gold,
+                size: 22,
+                strokeWidth: 1.8,
+              ),
               color: AppColors.gold,
               title: 'My Wallet',
               subtitle: 'Fcoin ${formatCoin(user.fcoin)}  •  '
@@ -159,7 +151,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const _SectionLabel('PREFERENCES'),
           _Group(children: [
             _Tile(
-              icon: Icons.notifications_rounded,
+              icon: const HugeIcon(
+                icon: AppIcons.notification,
+                color: AppColors.cyan,
+                size: 22,
+                strokeWidth: 1.8,
+              ),
               color: AppColors.cyan,
               title: 'Notifications',
               subtitle: _notif ? 'On' : 'Off',
@@ -171,14 +168,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const _SectionLabel('HELP & LEGAL'),
           _Group(children: [
             _Tile(
-              icon: Icons.support_agent_rounded,
+              icon: const HugeIcon(
+                icon: AppIcons.support,
+                color: Color(0xFF6FB3A8),
+                size: 22,
+                strokeWidth: 1.8,
+              ),
               color: const Color(0xFF6FB3A8),
               title: 'Customer Support',
               subtitle: 'FAQ aur contact details',
               onTap: widget.onOpenSupport,
             ),
             _Tile(
-              icon: Icons.privacy_tip_rounded,
+              icon: const Icon(
+                Icons.privacy_tip_rounded,
+                color: AppColors.gold,
+                size: 22,
+              ),
               color: AppColors.gold,
               title: 'Privacy Policy',
               onTap: () => Navigator.of(context).push(
@@ -192,7 +198,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 20),
           _Group(children: [
             _Tile(
-              icon: Icons.logout_rounded,
+              icon: const Icon(
+                Icons.logout_rounded,
+                color: Color(0xFFFF6B6B),
+                size: 22,
+              ),
               color: const Color(0xFFFF6B6B),
               title: 'Logout',
               titleColor: const Color(0xFFFF6B6B),
@@ -221,13 +231,13 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 24, 0, 10),
+      padding: const EdgeInsets.fromLTRB(4, 26, 0, 10),
       child: Text(
         text,
         style: const TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w800,
-          letterSpacing: 1.5,
+          letterSpacing: 1.6,
           color: AppColors.cyan,
         ),
       ),
@@ -242,11 +252,7 @@ class _Group extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: AppColors.slate.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.teal.withValues(alpha: 0.3)),
-      ),
+      decoration: AppTheme.surfaceCard(border: AppColors.line, radius: 16),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Material(
@@ -255,10 +261,10 @@ class _Group extends StatelessWidget {
             children: [
               for (var i = 0; i < children.length; i++) ...[
                 if (i > 0)
-                  Divider(
+                  const Divider(
                     height: 1,
                     indent: 68,
-                    color: AppColors.teal.withValues(alpha: 0.3),
+                    color: AppColors.line,
                   ),
                 children[i],
               ],
@@ -271,7 +277,7 @@ class _Group extends StatelessWidget {
 }
 
 class _Tile extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final Color color;
   final String title;
   final Color titleColor;
@@ -293,15 +299,16 @@ class _Tile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       leading: Container(
-        width: 40,
-        height: 40,
+        width: 42,
+        height: 42,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: color.withValues(alpha: 0.15),
         ),
-        child: Icon(icon, color: color, size: 22),
+        child: icon,
       ),
       title: Text(
         title,
@@ -314,7 +321,7 @@ class _Tile extends StatelessWidget {
           ? null
           : Text(
               subtitle!,
-              style: const TextStyle(color: AppColors.mist, fontSize: 12),
+              style: const TextStyle(color: AppColors.mist, fontSize: 12.5),
             ),
       trailing: trailing ??
           const Icon(Icons.chevron_right_rounded, color: AppColors.mist),

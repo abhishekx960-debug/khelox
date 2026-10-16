@@ -49,10 +49,9 @@ class SupportScreen extends StatelessWidget {
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: AppColors.slate.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+      decoration: AppTheme.surfaceCard(
+        border: color.withValues(alpha: 0.4),
+        radius: 16,
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
@@ -98,23 +97,13 @@ class SupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: kheloxAppBar(),
+      appBar: const KheloxAppBar('Support'),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
         children: [
           const Text(
-            'CUSTOMER SUPPORT',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.5,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
             'Koi problem hai? Hum madad ke liye hain.',
-            style: TextStyle(color: AppColors.mist),
+            style: TextStyle(color: AppColors.mist, fontSize: 14.5),
           ),
           const SizedBox(height: 20),
           _contactCard(
@@ -147,18 +136,15 @@ class SupportScreen extends StatelessWidget {
           const Text(
             'FAQ',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w800,
-              letterSpacing: 1.5,
+              letterSpacing: 1.6,
               color: AppColors.cyan,
             ),
           ),
           const SizedBox(height: 10),
           Container(
-            decoration: BoxDecoration(
-              color: AppColors.slate.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(16),
-            ),
+            decoration: AppTheme.surfaceCard(border: AppColors.line, radius: 16),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: Theme(
@@ -168,9 +154,9 @@ class SupportScreen extends StatelessWidget {
                   children: [
                     for (var i = 0; i < _faqs.length; i++) ...[
                       if (i > 0)
-                        Divider(
+                        const Divider(
                           height: 1,
-                          color: AppColors.teal.withValues(alpha: 0.3),
+                          color: AppColors.line,
                         ),
                       ExpansionTile(
                         iconColor: AppColors.gold,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/auth_widgets.dart';
-import '../widgets/coin_chip.dart';
 import '../widgets/game_tile.dart';
 import '../widgets/khelox_app_bar.dart';
 
@@ -19,14 +18,9 @@ class ModesScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: kheloxAppBar(
-        actions: [
-          CoinChip(type: CoinType.dcoin, value: user.dcoin),
-          CoinChip(type: CoinType.wcoin, value: user.wcoin),
-        ],
-      ),
+      appBar: const KheloxAppBar('Premium Zone'),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
         children: [
           const ZoneHeader(
             title: 'PREMIUM ZONE',
@@ -38,8 +32,8 @@ class ModesScreen extends StatelessWidget {
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            crossAxisSpacing: 14,
-            mainAxisSpacing: 14,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
             childAspectRatio: 0.9,
             children: [
               for (final g in games)

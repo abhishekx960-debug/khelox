@@ -18,7 +18,7 @@ class WalletScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: kheloxAppBar(),
+      appBar: const KheloxAppBar('Wallet'),
       body: RefreshIndicator(
         onRefresh: () async {
           try {
@@ -29,15 +29,15 @@ class WalletScreen extends StatelessWidget {
         },
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
           children: [
             const Text(
-              'MY WALLET',
+              'AAPKA BALANCE',
               style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.5,
-                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.6,
+                color: AppColors.cyan,
               ),
             ),
             const SizedBox(height: 16),
@@ -45,18 +45,21 @@ class WalletScreen extends StatelessWidget {
               Container(
                 margin: const EdgeInsets.only(bottom: 14),
                 padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: const LinearGradient(
-                    colors: [AppColors.slate, Color(0xFF0B2240)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  border: Border.all(color: it.$1.color.withValues(alpha: 0.5)),
+                decoration: AppTheme.surfaceCard(
+                  border: it.$1.color.withValues(alpha: 0.45),
+                  radius: 20,
                 ),
                 child: Row(
                   children: [
-                    Icon(it.$1.icon, color: it.$1.color, size: 40),
+                    Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: it.$1.color.withValues(alpha: 0.15),
+                      ),
+                      child: Icon(it.$1.icon, color: it.$1.color, size: 28),
+                    ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
@@ -66,17 +69,18 @@ class WalletScreen extends StatelessWidget {
                             it.$1.fullName.toUpperCase(),
                             style: const TextStyle(
                               color: AppColors.mist,
-                              fontSize: 12,
-                              letterSpacing: 1.5,
+                              fontSize: 12.5,
+                              letterSpacing: 1.4,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Text(
                             formatCoin(it.$2),
                             style: TextStyle(
                               color: it.$1.color,
                               fontSize: 30,
                               fontWeight: FontWeight.w900,
+                              height: 1.1,
                             ),
                           ),
                         ],
@@ -87,6 +91,7 @@ class WalletScreen extends StatelessWidget {
                       style: const TextStyle(
                         color: AppColors.mist,
                         fontWeight: FontWeight.w700,
+                        fontSize: 13.5,
                       ),
                     ),
                   ],

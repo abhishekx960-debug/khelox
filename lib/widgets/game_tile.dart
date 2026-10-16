@@ -20,14 +20,17 @@ class ZoneHeader extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 24,
+            fontSize: 22,
             fontWeight: FontWeight.w900,
-            letterSpacing: 1.5,
+            letterSpacing: 1.2,
             color: color,
           ),
         ),
-        const SizedBox(height: 4),
-        Text(subtitle, style: const TextStyle(color: AppColors.mist)),
+        const SizedBox(height: 6),
+        Text(
+          subtitle,
+          style: const TextStyle(color: AppColors.mist, fontSize: 14),
+        ),
       ],
     );
   }
@@ -53,41 +56,41 @@ class GameTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       onTap: onTap,
       child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppColors.slate.withValues(alpha: 0.75),
-              const Color(0xFF0B2240),
+        decoration: AppTheme.surfaceCard(
+          border: color.withValues(alpha: 0.4),
+          radius: 20,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: color.withValues(alpha: 0.15),
+                ),
+                child: Icon(icon, size: 32, color: color),
+              ),
+              const SizedBox(height: 12),
+              Flexible(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15.5,
+                    height: 1.2,
+                  ),
+                ),
+              ),
             ],
           ),
-          border: Border.all(color: color.withValues(alpha: 0.4)),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 68,
-              height: 68,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color.withValues(alpha: 0.15),
-              ),
-              child: Icon(icon, size: 34, color: color),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                fontSize: 15,
-              ),
-            ),
-          ],
         ),
       ),
     );

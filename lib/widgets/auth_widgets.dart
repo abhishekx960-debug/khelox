@@ -37,31 +37,31 @@ class AuthScaffold extends StatelessWidget {
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
-                    vertical: 24,
+                    vertical: 32,
                   ),
                   child: Column(
                     children: [
-                      const KheloxLogo(size: 96),
-                      const SizedBox(height: 20),
+                      const KheloxLogo(size: 92),
+                      const SizedBox(height: 22),
                       Text(
                         title,
                         style: const TextStyle(
-                          fontSize: 28,
+                          fontSize: 27,
                           fontWeight: FontWeight.w900,
                           color: Colors.white,
                           letterSpacing: 0.5,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
                       Text(
                         subtitle,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: AppColors.mist,
-                          fontSize: 14,
+                          fontSize: 14.5,
                         ),
                       ),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 30),
                       child,
                     ],
                   ),
@@ -142,7 +142,7 @@ class AuthField extends StatelessWidget {
       validator: validator,
       autofillHints: autofillHints,
       onFieldSubmitted: onSubmitted,
-      style: const TextStyle(color: Colors.white),
+      style: const TextStyle(color: Colors.white, fontSize: 15),
       cursorColor: AppColors.gold,
       decoration: InputDecoration(
         labelText: label,
