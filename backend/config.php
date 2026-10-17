@@ -7,6 +7,16 @@ define('DB_PASS', '>w3IUDO#+47I');
 
 header('Content-Type: application/json; charset=utf-8');
 
+// Flutter Web se aane wale cross-origin requests allow karo.
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Accept');
+header('Access-Control-Max-Age: 86400');
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
 function respond(int $code, array $payload): void {
     http_response_code($code);
     echo json_encode($payload, JSON_UNESCAPED_UNICODE);
