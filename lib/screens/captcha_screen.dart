@@ -16,7 +16,7 @@ class _CaptchaScreenState extends State<CaptchaScreen> {
   static const _palette = <Color>[
     AppColors.gold,
     AppColors.cyan,
-    Color(0xFF6FB3A8),
+    AppColors.teal,
   ];
 
   final _input = TextEditingController();
@@ -101,6 +101,7 @@ class _CaptchaScreenState extends State<CaptchaScreen> {
                             child: Text(
                               _code[i],
                               style: TextStyle(
+                                fontFamily: AppFonts.heading,
                                 color: _colors[i],
                                 fontSize: 34,
                                 fontWeight: FontWeight.w900,

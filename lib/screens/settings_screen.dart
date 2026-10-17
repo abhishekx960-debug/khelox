@@ -39,7 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFFFF6B6B),
+              foregroundColor: AppColors.danger,
             ),
             child: const Text('Logout'),
           ),
@@ -76,9 +76,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Text(
                     user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
                     style: const TextStyle(
+                      fontFamily: AppFonts.heading,
                       color: AppColors.navy,
                       fontSize: 24,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
@@ -92,9 +93,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
+                          fontFamily: AppFonts.heading,
                           color: Colors.white,
                           fontSize: 18,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -146,11 +148,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _Tile(
               icon: const HugeIcon(
                 icon: AppIcons.support,
-                color: Color(0xFF6FB3A8),
+                color: AppColors.cyan,
                 size: 22,
                 strokeWidth: 1.8,
               ),
-              color: const Color(0xFF6FB3A8),
+              color: AppColors.cyan,
               title: 'Customer Support',
               subtitle: 'FAQ and contact details',
               onTap: widget.onOpenSupport,
@@ -176,12 +178,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _Tile(
               icon: const Icon(
                 Icons.logout_rounded,
-                color: Color(0xFFFF6B6B),
+                color: AppColors.danger,
                 size: 22,
               ),
-              color: const Color(0xFFFF6B6B),
+              color: AppColors.danger,
               title: 'Logout',
-              titleColor: const Color(0xFFFF6B6B),
+              titleColor: AppColors.danger,
               trailing: const SizedBox.shrink(),
               onTap: _logout,
             ),

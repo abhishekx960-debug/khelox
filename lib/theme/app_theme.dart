@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const navy = Color(0xFF061427);
-  static const navyDeep = Color(0xFF030D1B);
-  static const card = Color(0xFF0B2138);
-  static const cardAlt = Color(0xFF123151);
-  static const gold = Color(0xFFE3A02B);
-  static const cyan = Color(0xFF0FAFCD);
-  static const teal = Color(0xFF4D7D76);
-  static const slate = Color(0xFF2D3E48);
-  static const mist = Color(0xFFBEC0B1);
-  static const line = Color(0xFF1B3A5B);
+  static const ink = Color(0xFF2B2D3B);
+  static const navy = Color(0xFF2B2D3B);
+  static const navyDeep = Color(0xFF232430);
+  static const card = Color(0xFF383A4B);
+  static const cardAlt = Color(0xFF494C65);
+  static const gold = Color(0xFFDDDE68);
+  static const cyan = Color(0xFFA5B2EB);
+  static const teal = Color(0xFFDA935D);
+  static const slate = Color(0xFF494C65);
+  static const mist = Color(0xFFC3C7E0);
+  static const line = Color(0xFF676386);
   static const danger = Color(0xFFFF6B6B);
+}
+
+class AppFonts {
+  static const heading = 'Sora';
+  static const body = 'Inter';
 }
 
 class AppTheme {
@@ -43,14 +49,17 @@ class AppTheme {
       secondary: AppColors.cyan,
       onSecondary: AppColors.navy,
       tertiary: AppColors.teal,
+      onTertiary: AppColors.navy,
       surface: AppColors.card,
       onSurface: Colors.white,
       error: AppColors.danger,
+      onError: AppColors.navy,
     );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
+      fontFamily: AppFonts.body,
       scaffoldBackgroundColor: AppColors.navy,
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.navy,
@@ -62,34 +71,62 @@ class AppTheme {
         toolbarHeight: 64,
         iconTheme: IconThemeData(color: Colors.white),
         titleTextStyle: TextStyle(
+          fontFamily: AppFonts.heading,
           color: Colors.white,
           fontSize: 21,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.3,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.2,
         ),
       ),
       textTheme: const TextTheme(
         displaySmall: TextStyle(
+          fontFamily: AppFonts.heading,
           fontSize: 26,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 0.5,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.2,
         ),
         headlineSmall: TextStyle(
+          fontFamily: AppFonts.heading,
           fontSize: 22,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.3,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.2,
         ),
-        titleLarge: TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
-        titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-        bodyLarge: TextStyle(fontSize: 15, height: 1.4),
-        bodyMedium: TextStyle(fontSize: 14, height: 1.4),
-        bodySmall: TextStyle(fontSize: 12.5, height: 1.35),
+        titleLarge: TextStyle(
+          fontFamily: AppFonts.heading,
+          fontSize: 19,
+          fontWeight: FontWeight.w700,
+        ),
+        titleMedium: TextStyle(
+          fontFamily: AppFonts.heading,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
+        bodyLarge: TextStyle(
+          fontFamily: AppFonts.body,
+          fontSize: 15,
+          height: 1.45,
+        ),
+        bodyMedium: TextStyle(
+          fontFamily: AppFonts.body,
+          fontSize: 14,
+          height: 1.45,
+        ),
+        bodySmall: TextStyle(
+          fontFamily: AppFonts.body,
+          fontSize: 12.5,
+          height: 1.4,
+        ),
         labelLarge: TextStyle(
+          fontFamily: AppFonts.body,
           fontSize: 14,
           fontWeight: FontWeight.w700,
-          letterSpacing: 0.4,
+          letterSpacing: 0.3,
         ),
-        labelMedium: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+        labelMedium: TextStyle(
+          fontFamily: AppFonts.body,
+          fontSize: 12.5,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       dividerTheme: const DividerThemeData(
         color: AppColors.line,
@@ -99,18 +136,20 @@ class AppTheme {
       listTileTheme: const ListTileThemeData(
         iconColor: AppColors.mist,
         titleTextStyle: TextStyle(
+          fontFamily: AppFonts.body,
           color: Colors.white,
           fontSize: 15.5,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w600,
         ),
         subtitleTextStyle: TextStyle(
+          fontFamily: AppFonts.body,
           color: AppColors.mist,
           fontSize: 12.5,
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
         height: 70,
-        backgroundColor: const Color(0xFF0A1D36),
+        backgroundColor: AppColors.navyDeep,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         indicatorColor: Colors.transparent,
@@ -128,8 +167,9 @@ class AppTheme {
         ),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (s) => TextStyle(
+            fontFamily: AppFonts.body,
             fontSize: 12.5,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
             color: s.contains(WidgetState.selected)
                 ? AppColors.gold
                 : AppColors.mist,
@@ -139,8 +179,13 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.slate.withValues(alpha: 0.45),
-        labelStyle: const TextStyle(color: AppColors.mist, fontSize: 14),
+        labelStyle: const TextStyle(
+          fontFamily: AppFonts.body,
+          color: AppColors.mist,
+          fontSize: 14,
+        ),
         hintStyle: TextStyle(
+          fontFamily: AppFonts.body,
           color: AppColors.mist.withValues(alpha: 0.6),
           fontSize: 14,
         ),
@@ -162,14 +207,21 @@ class AppTheme {
             borderRadius: BorderRadius.circular(14),
           ),
           textStyle: const TextStyle(
+            fontFamily: AppFonts.body,
             fontSize: 16,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.8,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5,
           ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: AppColors.cyan),
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.cyan,
+          textStyle: const TextStyle(
+            fontFamily: AppFonts.body,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
@@ -186,7 +238,11 @@ class AppTheme {
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.cardAlt,
-        contentTextStyle: const TextStyle(color: Colors.white, fontSize: 14),
+        contentTextStyle: const TextStyle(
+          fontFamily: AppFonts.body,
+          color: Colors.white,
+          fontSize: 14,
+        ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         insetPadding: const EdgeInsets.all(16),
       ),

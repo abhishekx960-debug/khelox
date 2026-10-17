@@ -97,9 +97,10 @@ class _DailyCheckInScreenState extends State<DailyCheckInScreen> {
                             Text(
                               '$_streak day streak',
                               style: const TextStyle(
+                                fontFamily: AppFonts.heading,
                                 color: Colors.white,
                                 fontSize: 18,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             const SizedBox(height: 2),

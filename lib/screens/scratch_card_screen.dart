@@ -81,9 +81,10 @@ class _ScratchCardScreenState extends State<ScratchCardScreen> {
                               : 'No reward. Try again!',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
+                            fontFamily: AppFonts.heading,
                             color: Colors.white,
                             fontSize: 17,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
@@ -128,9 +129,10 @@ class _ScratchPainter extends CustomPainter {
       text: const TextSpan(
         text: 'SCRATCH HERE',
         style: TextStyle(
+          fontFamily: AppFonts.heading,
           color: AppColors.mist,
           fontSize: 16,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
           letterSpacing: 2,
         ),
       ),

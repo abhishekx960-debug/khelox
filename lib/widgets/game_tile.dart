@@ -20,8 +20,9 @@ class ZoneHeader extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
+            fontFamily: AppFonts.heading,
             fontSize: 22,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w800,
             letterSpacing: 1.2,
             color: color,
           ),

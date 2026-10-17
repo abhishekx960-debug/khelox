@@ -202,9 +202,10 @@ class _SurveySheetState extends State<_SurveySheet> {
           Text(
             widget.survey.title,
             style: const TextStyle(
+              fontFamily: AppFonts.heading,
               color: Colors.white,
               fontSize: 18,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 6),

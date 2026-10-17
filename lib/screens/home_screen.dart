@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static const _freeGames = <(String, IconData, Color)>[
     ('Spin Wheel', Icons.album_rounded, AppColors.gold),
     ('Scratch Card', Icons.confirmation_number_rounded, AppColors.cyan),
-    ('Captcha', Icons.verified_user_rounded, Color(0xFF6FB3A8)),
+    ('Captcha', Icons.verified_user_rounded, AppColors.teal),
     ('Daily Check-in', Icons.event_available_rounded, AppColors.gold),
     ('Surveys', Icons.poll_rounded, AppColors.cyan),
   ];

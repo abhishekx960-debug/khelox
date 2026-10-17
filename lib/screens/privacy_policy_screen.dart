@@ -51,8 +51,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
           const Text(
             'KheloX Privacy Policy',
             style: TextStyle(
+              fontFamily: AppFonts.heading,
               fontSize: 21,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
           ),

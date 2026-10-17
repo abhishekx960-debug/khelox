@@ -116,7 +116,7 @@ class SupportScreen extends StatelessWidget {
           _contactCard(
             context,
             icon: Icons.chat_outlined,
-            color: const Color(0xFF6FB3A8),
+            color: AppColors.teal,
             label: 'WHATSAPP',
             value: kSupportWhatsapp,
           ),

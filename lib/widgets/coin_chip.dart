@@ -5,7 +5,7 @@ enum CoinType {
   fcoin('Fcoin', 'Free Coin', Icons.monetization_on_rounded, AppColors.gold),
   dcoin('Dcoin', 'Deposit Coin', Icons.diamond_rounded, AppColors.cyan),
   wcoin('Wcoin', 'Winning Coin', Icons.workspace_premium_rounded,
-      Color(0xFF6FB3A8));
+      AppColors.teal);
 
   final String label;
   final String fullName;
@@ -27,8 +27,8 @@ class CoinChip extends StatelessWidget {
     return Tooltip(
       message: type.label,
       child: Container(
-        margin: const EdgeInsets.only(left: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        constraints: const BoxConstraints(maxWidth: 90),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
           color: AppColors.slate.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(20),
@@ -37,14 +37,23 @@ class CoinChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(type.icon, size: 18, color: type.color),
-            const SizedBox(width: 6),
-            Text(
-              formatCoin(value),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                fontSize: 14,
+            Icon(type.icon, size: 16, color: type.color),
+            const SizedBox(width: 5),
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  formatCoin(value),
+                  maxLines: 1,
+                  softWrap: false,
+                  style: const TextStyle(
+                    fontFamily: AppFonts.heading,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13.5,
+                  ),
+                ),
               ),
             ),
           ],

@@ -21,7 +21,7 @@ class AuthScaffold extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF0B2240), AppColors.navy],
+            colors: [AppColors.cardAlt, AppColors.navy],
           ),
         ),
         child: Stack(
@@ -46,8 +46,9 @@ class AuthScaffold extends StatelessWidget {
                       Text(
                         title,
                         style: const TextStyle(
+                          fontFamily: AppFonts.heading,
                           fontSize: 27,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w800,
                           color: Colors.white,
                           letterSpacing: 0.5,
                         ),

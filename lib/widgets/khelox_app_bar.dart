@@ -25,19 +25,29 @@ class KheloxAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   Widget _title() {
     if (brand) {
-      return const Row(
+      return Row(
         children: [
-          KheloxLogo(size: 32),
-          SizedBox(width: 10),
-          Text(
-            'KheloX',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1,
+          const KheloxLogo(size: 32),
+          const SizedBox(width: 10),
+          const Expanded(
+            child: Text(
+              'KheloX',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: AppFonts.heading,
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.6,
+              ),
             ),
           ),
+          for (final action in actions) ...[
+            const SizedBox(width: 8),
+            action,
+          ],
+          const SizedBox(width: 12),
         ],
       );
     }
@@ -80,7 +90,7 @@ class KheloxAppBar extends StatelessWidget implements PreferredSizeWidget {
             )
           : null,
       title: _title(),
-      actions: [...actions, const SizedBox(width: 12)],
+      actions: brand ? const [] : [...actions, const SizedBox(width: 12)],
     );
   }
 }

@@ -195,9 +195,10 @@ class _WheelPainter extends CustomPainter {
         text: TextSpan(
           text: label,
           style: const TextStyle(
+            fontFamily: AppFonts.heading,
             color: AppColors.navy,
             fontSize: 15,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
           ),
         ),
         textDirection: TextDirection.ltr,

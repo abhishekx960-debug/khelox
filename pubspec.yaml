@@ -24,3 +24,28 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/logo/
+  fonts:
+    - family: Sora
+      fonts:
+        - asset: assets/fonts/Sora/Sora-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Sora/Sora-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Sora/Sora-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Sora/Sora-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Sora/Sora-ExtraBold.ttf
+          weight: 800
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter/Inter-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Inter/Inter-ExtraBold.ttf
+          weight: 800

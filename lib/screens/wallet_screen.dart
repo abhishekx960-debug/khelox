@@ -37,9 +37,10 @@ class WalletScreen extends StatelessWidget {
               const Text(
                 'Withdraw',
                 style: TextStyle(
+                  fontFamily: AppFonts.heading,
                   color: Colors.white,
                   fontSize: 18,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 4),
@@ -168,9 +169,10 @@ class _CoinRow extends StatelessWidget {
               Text(
                 type.label,
                 style: const TextStyle(
+                  fontFamily: AppFonts.heading,
                   color: Colors.white,
                   fontSize: 16,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 2),
@@ -180,9 +182,10 @@ class _CoinRow extends StatelessWidget {
                 child: Text(
                   formatCoin(value),
                   style: TextStyle(
+                    fontFamily: AppFonts.heading,
                     color: type.color,
                     fontSize: 22,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w800,
                     height: 1.1,
                   ),
                 ),
@@ -233,9 +236,10 @@ class _WithdrawOption extends StatelessWidget {
                     Text(
                       type.label,
                       style: const TextStyle(
+                        fontFamily: AppFonts.heading,
                         color: Colors.white,
                         fontSize: 15.5,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(

@@ -24,7 +24,7 @@ class NotificationsScreen extends StatelessWidget {
     ),
     (
       Icons.account_balance_wallet_rounded,
-      Color(0xFF6FB3A8),
+      AppColors.teal,
       'Deposit successful',
       'Rs 100 deposit successful. Your Dcoin balance was updated.',
       '5h ago',
