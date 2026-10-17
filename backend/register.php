@@ -8,16 +8,16 @@ $phone = preg_replace('/[\s-]/', '', (string)($in['phone'] ?? ''));
 $pass  = (string)($in['password'] ?? '');
 
 if (mb_strlen($name) < 2 || mb_strlen($name) > 100) {
-    respond(422, ['success' => false, 'message' => 'Sahi naam daalo']);
+    respond(422, ['success' => false, 'message' => 'Enter a valid name']);
 }
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) {
-    respond(422, ['success' => false, 'message' => 'Sahi email daalo']);
+    respond(422, ['success' => false, 'message' => 'Enter a valid email']);
 }
 if (!preg_match('/^\+?\d{10,15}$/', $phone)) {
-    respond(422, ['success' => false, 'message' => 'Sahi phone number daalo']);
+    respond(422, ['success' => false, 'message' => 'Enter a valid phone number']);
 }
 if (strlen($pass) < 6) {
-    respond(422, ['success' => false, 'message' => 'Password kam se kam 6 characters']);
+    respond(422, ['success' => false, 'message' => 'Password must be at least 6 characters']);
 }
 
 try {
@@ -26,7 +26,7 @@ try {
     $q = $pdo->prepare('SELECT email, phone FROM users WHERE email = ? OR phone = ? LIMIT 1');
     $q->execute([$email, $phone]);
     if ($row = $q->fetch()) {
-        $msg = $row['email'] === $email ? 'Email already registered hai' : 'Phone already registered hai';
+        $msg = $row['email'] === $email ? 'Email is already registered' : 'Phone is already registered';
         respond(409, ['success' => false, 'message' => $msg]);
     }
 
@@ -47,7 +47,7 @@ try {
     ]);
 } catch (PDOException $e) {
     if ($e->getCode() === '23000') {
-        respond(409, ['success' => false, 'message' => 'Email ya phone already registered hai']);
+        respond(409, ['success' => false, 'message' => 'Email or phone is already registered']);
     }
     respond(500, ['success' => false, 'message' => 'Server error']);
 }

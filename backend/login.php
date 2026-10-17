@@ -6,7 +6,7 @@ $email = strtolower(trim((string)($in['email'] ?? '')));
 $pass  = (string)($in['password'] ?? '');
 
 if ($email === '' || $pass === '') {
-    respond(422, ['success' => false, 'message' => 'Email aur password daalo']);
+    respond(422, ['success' => false, 'message' => 'Enter your email and password']);
 }
 
 try {
@@ -15,7 +15,7 @@ try {
     $u = $q->fetch();
 
     if (!$u || !password_verify($pass, $u['password_hash'])) {
-        respond(401, ['success' => false, 'message' => 'Email ya password galat hai']);
+        respond(401, ['success' => false, 'message' => 'Incorrect email or password']);
     }
 
     respond(200, [

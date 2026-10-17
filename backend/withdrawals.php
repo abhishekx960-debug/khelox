@@ -62,26 +62,26 @@ try {
     $max = (float)setting($type . '_max_withdraw', '100000');
 
     if ($amount <= 0) {
-        respond(422, ['success' => false, 'message' => 'Amount daalo']);
+        respond(422, ['success' => false, 'message' => 'Enter an amount']);
     }
     if ($amount < $min) {
-        respond(422, ['success' => false, 'message' => 'Minimum ' . $min . ' ' . ucfirst($type) . ' withdraw hai']);
+        respond(422, ['success' => false, 'message' => 'Minimum ' . ucfirst($type) . ' withdrawal is ' . $min]);
     }
     if ($max > 0 && $amount > $max) {
-        respond(422, ['success' => false, 'message' => 'Maximum ' . $max . ' ' . ucfirst($type) . ' withdraw hai']);
+        respond(422, ['success' => false, 'message' => 'Maximum ' . ucfirst($type) . ' withdrawal is ' . $max]);
     }
     if ($upiId === '' || mb_strlen($upiId) > 120) {
-        respond(422, ['success' => false, 'message' => 'Sahi UPI ID daalo']);
+        respond(422, ['success' => false, 'message' => 'Enter a valid UPI ID']);
     }
 
     $q = db()->prepare('SELECT ' . $type . ' AS balance FROM users WHERE id = ? LIMIT 1');
     $q->execute([$userId]);
     $row = $q->fetch();
     if (!$row) {
-        respond(404, ['success' => false, 'message' => 'User nahi mila']);
+        respond(404, ['success' => false, 'message' => 'User not found']);
     }
     if ((float)$row['balance'] < $amount) {
-        respond(422, ['success' => false, 'message' => 'Balance kam hai']);
+        respond(422, ['success' => false, 'message' => 'Insufficient balance']);
     }
 
     $ins = db()->prepare(
@@ -98,7 +98,7 @@ try {
 
     respond(200, [
         'success'     => true,
-        'message'     => 'Withdraw request bhej di gayi',
+        'message'     => 'Withdrawal request sent',
         'withdrawal'  => withdraw_payload($type, $q->fetch()),
     ]);
 } catch (PDOException $e) {

@@ -11,16 +11,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $title = trim((string)($_POST['title'] ?? ''));
         $url   = trim((string)($_POST['more_info_url'] ?? ''));
         $errors = [];
-        if (mb_strlen($title) < 2 || mb_strlen($title) > 150) $errors[] = 'Title 2-150 characters ka hona chahiye';
-        if ($url !== '' && !filter_var($url, FILTER_VALIDATE_URL)) $errors[] = 'More info URL sahi nahi hai';
-        if (empty($_FILES['image']['name'] ?? '')) $errors[] = 'Carousel image upload karo';
+        if (mb_strlen($title) < 2 || mb_strlen($title) > 150) $errors[] = 'Title must be 2-150 characters';
+        if ($url !== '' && !filter_var($url, FILTER_VALIDATE_URL)) $errors[] = 'More info URL is invalid';
+        if (empty($_FILES['image']['name'] ?? '')) $errors[] = 'Please upload a carousel image';
 
         if (!$errors) {
             try {
                 $image = save_image($_FILES['image']);
                 $pdo->prepare('INSERT INTO carousels (title, image, more_info_url) VALUES (?, ?, ?)')
                     ->execute([$title, $image, $url !== '' ? $url : null]);
-                flash('success', 'Carousel add ho gaya');
+                flash('success', 'Carousel added');
             } catch (RuntimeException $ex) {
                 $errors[] = $ex->getMessage();
             }
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = (int)($_POST['id'] ?? 0);
         if ($id > 0) {
             $pdo->prepare('UPDATE carousels SET status = 1 - status WHERE id = ?')->execute([$id]);
-            flash('success', 'Status update ho gaya');
+            flash('success', 'Status updated');
         }
         header('Location: carousels.php');
         exit;
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($row = $st->fetch()) {
             $pdo->prepare('DELETE FROM carousels WHERE id = ?')->execute([$id]);
             delete_upload($row['image']);
-            flash('success', 'Carousel delete ho gaya');
+            flash('success', 'Carousel deleted');
         }
         header('Location: carousels.php');
         exit;
@@ -120,7 +120,7 @@ $items = $pdo->query('SELECT id, title, image, more_info_url, status, created_at
                                     <input type="hidden" name="id" value="<?= (int)$c['id'] ?>">
                                     <button class="btn btn-sm btn-outline-<?= $c['status'] ? 'secondary' : 'success' ?>"><?= $c['status'] ? 'Disable' : 'Enable' ?></button>
                                 </form>
-                                <form method="post" class="d-inline" onsubmit="return confirm('Pakka delete karna hai?')">
+                                <form method="post" class="d-inline" onsubmit="return confirm('Delete this item?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="id" value="<?= (int)$c['id'] ?>">
@@ -129,7 +129,7 @@ $items = $pdo->query('SELECT id, title, image, more_info_url, status, created_at
                             </td>
                         </tr>
                     <?php endforeach; ?>
-                    <?php if (!$items): ?><tr><td colspan="4"><div class="empty"><i class="bi bi-images"></i>Abhi koi carousel nahi</div></td></tr><?php endif; ?>
+                    <?php if (!$items): ?><tr><td colspan="4"><div class="empty"><i class="bi bi-images"></i>No carousels yet</div></td></tr><?php endif; ?>
                     </tbody>
                 </table>
             </div>

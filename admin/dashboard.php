@@ -90,7 +90,7 @@ $cards = [
                     <td class="text-nowrap text-muted"><?= e(date('d M Y, h:i A', strtotime($u['created_at']))) ?></td>
                 </tr>
             <?php endforeach; ?>
-            <?php if (!$recent): ?><tr><td colspan="3"><div class="empty"><i class="bi bi-inbox"></i>Abhi koi user nahi</div></td></tr><?php endif; ?>
+            <?php if (!$recent): ?><tr><td colspan="3"><div class="empty"><i class="bi bi-inbox"></i>No users yet</div></td></tr><?php endif; ?>
             </tbody>
         </table>
     </div>

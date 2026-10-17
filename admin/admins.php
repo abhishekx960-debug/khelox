@@ -7,10 +7,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'toggl
     csrf_check();
     $id = (int)($_POST['id'] ?? 0);
     if ($id === (int)$_SESSION['admin_id']) {
-        flash('danger', 'Apne aap ko disable nahi kar sakte');
+        flash('danger', 'You cannot disable your own account');
     } elseif ($id > 0) {
         $pdo->prepare('UPDATE admins SET status = 1 - status WHERE id = ?')->execute([$id]);
-        flash('success', 'Status update ho gaya');
+        flash('success', 'Status updated');
     }
     header('Location: admins.php');
     exit;
@@ -47,7 +47,7 @@ $admins = $pdo->query('SELECT id, name, username, email, phone, status, last_log
                     <td><span class="badge rounded-pill badge-soft-<?= $a['status'] ? 'success' : 'secondary' ?> px-3 py-2"><?= $a['status'] ? 'Active' : 'Disabled' ?></span></td>
                     <td class="text-end">
                         <?php if (!$me): ?>
-                        <form method="post" class="d-inline" onsubmit="return confirm('Pakka?')">
+                        <form method="post" class="d-inline" onsubmit="return confirm('Are you sure?')">
                             <?= csrf_field() ?>
                             <input type="hidden" name="action" value="toggle">
                             <input type="hidden" name="id" value="<?= (int)$a['id'] ?>">

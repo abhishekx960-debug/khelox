@@ -99,7 +99,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                             SizedBox(height: 12),
                             Center(
                               child: Text(
-                                'Abhi koi transaction nahi hai',
+                                'No transactions yet',
                                 style: TextStyle(
                                   color: AppColors.mist,
                                   fontSize: 14,

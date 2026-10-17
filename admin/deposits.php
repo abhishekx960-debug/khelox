@@ -19,10 +19,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if (!$row) {
                     $pdo->rollBack();
-                    flash('danger', 'Deposit request nahi mili');
+                    flash('danger', 'Deposit request not found');
                 } elseif ((int)$row['credited'] === 1) {
                     $pdo->rollBack();
-                    flash('danger', 'Ye deposit pehle hi approve ho chuka hai');
+                    flash('danger', 'This deposit has already been approved');
                 } else {
                     $coins = (float)$row['coins'];
                     if ($coins <= 0) $coins = (float)$row['amount'];
@@ -32,20 +32,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pdo->prepare('UPDATE users SET dcoin = dcoin + ? WHERE id = ?')
                         ->execute([$coins, (int)$row['user_id']]);
                     $pdo->commit();
-                    flash('success', 'Deposit approve ho gaya, ' . $coins . ' Dcoin add kiye gaye');
+                    flash('success', 'Deposit approved, ' . $coins . ' Dcoin added');
                 }
             } elseif ($action === 'pending') {
                 $st = $pdo->prepare('SELECT credited FROM deposits WHERE id = ? LIMIT 1');
                 $st->execute([$id]);
                 $row = $st->fetch();
                 if (!$row) {
-                    flash('danger', 'Deposit request nahi mili');
+                    flash('danger', 'Deposit request not found');
                 } elseif ((int)$row['credited'] === 1) {
-                    flash('danger', 'Approved deposit ko pending nahi kar sakte, coins already add ho chuke hain');
+                    flash('danger', 'An approved deposit cannot be set to pending because the coins were already added');
                 } else {
                     $pdo->prepare('UPDATE deposits SET status = 0, reject_reason = NULL WHERE id = ?')
                         ->execute([$id]);
-                    flash('success', 'Deposit pending me daal diya');
+                    flash('success', 'Deposit marked as pending');
                 }
             } elseif ($action === 'reject') {
                 $reason = trim((string)($_POST['reason'] ?? ''));
@@ -54,15 +54,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $row = $st->fetch();
 
                 if (!$row) {
-                    flash('danger', 'Deposit request nahi mili');
+                    flash('danger', 'Deposit request not found');
                 } elseif ((int)$row['credited'] === 1) {
-                    flash('danger', 'Approved deposit reject nahi ho sakta');
+                    flash('danger', 'An approved deposit cannot be rejected');
                 } elseif ($reason === '' || mb_strlen($reason) > 255) {
-                    flash('danger', 'Reject reason likho (max 255 characters)');
+                    flash('danger', 'Enter a rejection reason (max 255 characters)');
                 } else {
                     $pdo->prepare('UPDATE deposits SET status = 2, reject_reason = ? WHERE id = ?')
                         ->execute([$reason, $id]);
-                    flash('success', 'Deposit reject kar diya');
+                    flash('success', 'Deposit rejected');
                 }
             } elseif ($action === 'delete') {
                 $pdo->beginTransaction();
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if (!$row) {
                     $pdo->rollBack();
-                    flash('danger', 'Deposit request nahi mili');
+                    flash('danger', 'Deposit request not found');
                 } else {
                     if ((int)$row['credited'] === 1) {
                         $coins = (float)$row['coins'];
@@ -82,12 +82,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     $pdo->prepare('DELETE FROM deposits WHERE id = ?')->execute([$id]);
                     $pdo->commit();
-                    flash('success', 'Deposit delete ho gaya, user side se bhi hat gaya');
+                    flash('success', 'Deposit deleted and removed from the user side');
                 }
             }
         } catch (PDOException $e) {
             if ($pdo->inTransaction()) $pdo->rollBack();
-            flash('danger', 'Request process nahi hui, dobara try karo');
+            flash('danger', 'Could not process the request, please try again');
         }
     }
 
@@ -211,7 +211,7 @@ $label = [0 => 'Pending', 1 => 'Approved', 2 => 'Rejected'];
                                     data-name="<?= e((string)($r['user_name'] ?? '')) ?>"
                                     title="Reject"><i class="bi bi-x-lg"></i></button>
                         <?php endif; ?>
-                        <form method="post" class="d-inline" onsubmit="return confirm('Deposit delete karna hai? User side se bhi hat jayega.')">
+                        <form method="post" class="d-inline" onsubmit="return confirm('Delete this deposit? It will also be removed from the user side.')">
                             <?= csrf_field() ?>
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
@@ -221,7 +221,7 @@ $label = [0 => 'Pending', 1 => 'Approved', 2 => 'Rejected'];
                     </td>
                 </tr>
             <?php endforeach; ?>
-            <?php if (!$rows): ?><tr><td colspan="6"><div class="empty"><i class="bi bi-inbox"></i>Koi deposit request nahi mili</div></td></tr><?php endif; ?>
+            <?php if (!$rows): ?><tr><td colspan="6"><div class="empty"><i class="bi bi-inbox"></i>No deposit requests found</div></td></tr><?php endif; ?>
             </tbody>
         </table>
     </div>
@@ -239,8 +239,8 @@ $label = [0 => 'Pending', 1 => 'Approved', 2 => 'Rejected'];
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <label class="form-label">Reason (user ko dikhega)</label>
-                <textarea name="reason" class="form-control" rows="3" maxlength="255" placeholder="Payment verify nahi hua..." required></textarea>
+                <label class="form-label">Reason (shown to the user)</label>
+                <textarea name="reason" class="form-control" rows="3" maxlength="255" placeholder="Payment could not be verified..." required></textarea>
             </div>
             <div class="modal-footer border-0 pt-0">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>

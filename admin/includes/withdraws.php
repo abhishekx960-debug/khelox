@@ -22,10 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if (!$row) {
                     $pdo->rollBack();
-                    flash('danger', 'Withdraw request nahi mili');
+                    flash('danger', 'Withdrawal request not found');
                 } elseif ((int)$row['status'] === 1) {
                     $pdo->rollBack();
-                    flash('danger', 'Ye request pehle hi approve ho chuki hai');
+                    flash('danger', 'This request has already been approved');
                 } else {
                     $bal = $pdo->prepare("SELECT $type AS balance FROM users WHERE id = ? FOR UPDATE");
                     $bal->execute([(int)$row['user_id']]);
@@ -34,16 +34,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     if (!$user) {
                         $pdo->rollBack();
-                        flash('danger', 'User nahi mila');
+                        flash('danger', 'User not found');
                     } elseif ((float)$user['balance'] < $amount) {
                         $pdo->rollBack();
-                        flash('danger', 'User ka balance kam hai (' . $amount . ' ' . $coinLabel . ' required)');
+                        flash('danger', 'User has insufficient balance (' . $amount . ' ' . $coinLabel . ' required)');
                     } else {
                         $pdo->prepare("UPDATE $table SET status = 1, remark = NULL WHERE id = ?")->execute([$id]);
                         $pdo->prepare("UPDATE users SET $type = $type - ? WHERE id = ?")
                             ->execute([$amount, (int)$row['user_id']]);
                         $pdo->commit();
-                        flash('success', $amount . ' ' . $coinLabel . ' deduct ho gaye, withdraw approve');
+                        flash('success', $amount . ' ' . $coinLabel . ' deducted, withdrawal approved');
                     }
                 }
             } elseif ($action === 'pending') {
@@ -51,12 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $st->execute([$id]);
                 $row = $st->fetch();
                 if (!$row) {
-                    flash('danger', 'Withdraw request nahi mili');
+                    flash('danger', 'Withdrawal request not found');
                 } elseif ((int)$row['status'] === 1) {
-                    flash('danger', 'Approved withdraw ko pending nahi kar sakte');
+                    flash('danger', 'An approved withdrawal cannot be set to pending');
                 } else {
                     $pdo->prepare("UPDATE $table SET status = 0, remark = NULL WHERE id = ?")->execute([$id]);
-                    flash('success', 'Withdraw pending me daal diya');
+                    flash('success', 'Withdrawal marked as pending');
                 }
             } elseif ($action === 'reject') {
                 $reason = trim((string)($_POST['reason'] ?? ''));
@@ -65,15 +65,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $row = $st->fetch();
 
                 if (!$row) {
-                    flash('danger', 'Withdraw request nahi mili');
+                    flash('danger', 'Withdrawal request not found');
                 } elseif ((int)$row['status'] === 1) {
-                    flash('danger', 'Approved withdraw reject nahi ho sakta');
+                    flash('danger', 'An approved withdrawal cannot be rejected');
                 } elseif ($reason === '' || mb_strlen($reason) > 255) {
-                    flash('danger', 'Reject reason likho (max 255 characters)');
+                    flash('danger', 'Enter a rejection reason (max 255 characters)');
                 } else {
                     $pdo->prepare("UPDATE $table SET status = 2, remark = ? WHERE id = ?")
                         ->execute([$reason, $id]);
-                    flash('success', 'Withdraw reject kar diya');
+                    flash('success', 'Withdrawal rejected');
                 }
             } elseif ($action === 'delete') {
                 $pdo->beginTransaction();
@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if (!$row) {
                     $pdo->rollBack();
-                    flash('danger', 'Withdraw request nahi mili');
+                    flash('danger', 'Withdrawal request not found');
                 } else {
                     if ((int)$row['status'] === 1) {
                         $pdo->prepare("UPDATE users SET $type = $type + ? WHERE id = ?")
@@ -91,12 +91,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     $pdo->prepare("DELETE FROM $table WHERE id = ?")->execute([$id]);
                     $pdo->commit();
-                    flash('success', 'Withdraw delete ho gaya, user side se bhi hat gaya');
+                    flash('success', 'Withdrawal deleted and removed from the user side');
                 }
             }
         } catch (PDOException $e) {
             if ($pdo->inTransaction()) $pdo->rollBack();
-            flash('danger', 'Request process nahi hui, dobara try karo');
+            flash('danger', 'Could not process the request, please try again');
         }
     }
 
@@ -216,7 +216,7 @@ $max = (float)setting($type . '_max_withdraw', '0');
                                     data-name="<?= e((string)($r['user_name'] ?? '')) ?>"
                                     title="Reject"><i class="bi bi-x-lg"></i></button>
                         <?php endif; ?>
-                        <form method="post" class="d-inline" onsubmit="return confirm('Withdraw delete karna hai? User side se bhi hat jayega.')">
+                        <form method="post" class="d-inline" onsubmit="return confirm('Delete this withdrawal? It will also be removed from the user side.')">
                             <?= csrf_field() ?>
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
@@ -226,7 +226,7 @@ $max = (float)setting($type . '_max_withdraw', '0');
                     </td>
                 </tr>
             <?php endforeach; ?>
-            <?php if (!$rows): ?><tr><td colspan="6"><div class="empty"><i class="bi bi-inbox"></i>Koi withdraw request nahi mili</div></td></tr><?php endif; ?>
+            <?php if (!$rows): ?><tr><td colspan="6"><div class="empty"><i class="bi bi-inbox"></i>No withdrawal requests found</div></td></tr><?php endif; ?>
             </tbody>
         </table>
     </div>
@@ -244,8 +244,8 @@ $max = (float)setting($type . '_max_withdraw', '0');
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <label class="form-label">Reason (user ko dikhega)</label>
-                <textarea name="reason" class="form-control" rows="3" maxlength="255" placeholder="UPI details sahi nahi hain..." required></textarea>
+                <label class="form-label">Reason (shown to the user)</label>
+                <textarea name="reason" class="form-control" rows="3" maxlength="255" placeholder="UPI details are incorrect..." required></textarea>
             </div>
             <div class="modal-footer border-0 pt-0">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>

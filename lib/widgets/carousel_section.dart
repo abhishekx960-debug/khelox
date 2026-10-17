@@ -234,9 +234,9 @@ class _CarouselSectionState extends State<CarouselSection>
     }
     try {
       final ok = await launchUrl(uri, mode: LaunchMode.platformDefault);
-      if (!ok && mounted) showMsg(context, 'Link open nahi hua');
+      if (!ok && mounted) showMsg(context, 'Could not open the link');
     } catch (_) {
-      if (mounted) showMsg(context, 'Link open nahi hua');
+      if (mounted) showMsg(context, 'Could not open the link');
     }
   }
 
@@ -277,7 +277,7 @@ class _CarouselSectionState extends State<CarouselSection>
                 ),
                 const SizedBox(height: 6),
                 const Text(
-                  'Carousel load nahi hua',
+                  'Could not load the carousel',
                   style: TextStyle(
                     fontFamily: AppFonts.body,
                     color: AppColors.mist,

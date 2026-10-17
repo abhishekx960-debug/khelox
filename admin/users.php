@@ -92,7 +92,7 @@ $users = $st->fetchAll();
                     </td>
                 </tr>
             <?php endforeach; ?>
-            <?php if (!$users): ?><tr><td colspan="5"><div class="empty"><i class="bi bi-search"></i>Koi user nahi mila</div></td></tr><?php endif; ?>
+            <?php if (!$users): ?><tr><td colspan="5"><div class="empty"><i class="bi bi-search"></i>No users found</div></td></tr><?php endif; ?>
             </tbody>
         </table>
     </div>

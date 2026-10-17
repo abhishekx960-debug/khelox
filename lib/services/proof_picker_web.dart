@@ -27,7 +27,7 @@ Future<PickedProofImage?> pickProofImage() {
     final file = files.first;
     if (file.size > _maxBytes) {
       if (!completer.isCompleted) {
-        completer.completeError('Image 3MB se choti honi chahiye');
+        completer.completeError('Image must be smaller than 3MB');
       }
       return;
     }
@@ -42,7 +42,7 @@ Future<PickedProofImage?> pickProofImage() {
     });
     reader.onError.listen((_) {
       if (!completer.isCompleted) {
-        completer.completeError('Image padhi nahi ja saki');
+        completer.completeError('Could not read the image');
       }
     });
     reader.readAsDataUrl(file);

@@ -115,7 +115,7 @@ function deposits_ensure_schema(): void {
             }
         }
     } catch (PDOException $e) {
-        // Table may not exist yet; the original schema.sql creates it.
+        // Table may not exist yet; system.sql creates it.
     }
 }
 
@@ -124,14 +124,14 @@ function deposits_ensure_schema(): void {
  */
 function upload_data_image(string $dataUrl): string {
     if (!preg_match('~^data:(image/(?:png|jpeg|jpg|webp|gif));base64,(.+)$~s', $dataUrl, $m)) {
-        throw new InvalidArgumentException('Sahi image file chuno');
+        throw new InvalidArgumentException('Please choose a valid image file');
     }
     $raw = base64_decode($m[2], true);
     if ($raw === false || $raw === '') {
-        throw new InvalidArgumentException('Image padhi nahi ja saki');
+        throw new InvalidArgumentException('Could not read the image');
     }
     if (strlen($raw) > 3145728) {
-        throw new InvalidArgumentException('Image 3MB se choti honi chahiye');
+        throw new InvalidArgumentException('Image must be smaller than 3MB');
     }
 
     $payload = http_build_query([
@@ -163,11 +163,11 @@ function upload_data_image(string $dataUrl): string {
     }
 
     if ($result === false) {
-        throw new RuntimeException('Image upload nahi hua, dobara try karo');
+        throw new RuntimeException('Image upload failed, please try again');
     }
     $json = json_decode($result, true);
     if (!is_array($json) || empty($json['success']) || empty($json['data']['url'])) {
-        throw new RuntimeException('Image upload fail hua, dobara try karo');
+        throw new RuntimeException('Image upload failed, please try again');
     }
     return (string)$json['data']['url'];
 }

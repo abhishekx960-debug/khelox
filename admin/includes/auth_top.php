@@ -23,10 +23,10 @@ $flash = flash_get();
             <div class="brand-text"><b class="fs-5">Khelox</b><small>Admin Panel</small></div>
         </div>
         <div>
-            <h2>Apna gaming platform, ek jagah se manage karo.</h2>
-            <p>Users, coins aur admins ko secure dashboard se control karo.</p>
+            <h2>Manage your gaming platform from one place.</h2>
+            <p>Control users, coins and admins from a secure dashboard.</p>
             <ul>
-                <li><i class="bi bi-people"></i> Users ki poori list aur search</li>
+                <li><i class="bi bi-people"></i> Full user list and search</li>
                 <li><i class="bi bi-coin"></i> FCoin / DCoin / WCoin management</li>
                 <li><i class="bi bi-shield-check"></i> Secure admin access</li>
             </ul>

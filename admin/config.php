@@ -55,7 +55,7 @@ function csrf_field(): string {
 function csrf_check(): void {
     if (!hash_equals($_SESSION['csrf'] ?? '', (string)($_POST['csrf'] ?? ''))) {
         http_response_code(419);
-        exit('Session expired, page refresh karo');
+        exit('Session expired, please refresh the page');
     }
 }
 
@@ -91,10 +91,10 @@ function initials(string $name): string {
 // Image validate karke ImgBB par upload karta hai aur public URL return karta hai.
 function save_image(array $file, string $sub = '', int $maxBytes = 3145728): string {
     if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-        throw new RuntimeException('File upload fail hua, dobara try karo');
+        throw new RuntimeException('File upload failed, please try again');
     }
     if (($file['size'] ?? 0) > $maxBytes) {
-        throw new RuntimeException('Image ' . round($maxBytes / 1048576, 1) . 'MB se choti honi chahiye');
+        throw new RuntimeException('Image must be smaller than ' . round($maxBytes / 1048576, 1) . 'MB');
     }
     $info = @getimagesize($file['tmp_name']);
     if (!$info) {
@@ -102,7 +102,7 @@ function save_image(array $file, string $sub = '', int $maxBytes = 3145728): str
     }
     $allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     if (!in_array($info['mime'] ?? '', $allowed, true)) {
-        throw new RuntimeException('Sirf JPG, PNG, WEBP ya GIF allowed hai');
+        throw new RuntimeException('Only JPG, PNG, WEBP or GIF files are allowed');
     }
 
     $data = base64_encode((string)file_get_contents($file['tmp_name']));
@@ -123,7 +123,7 @@ function save_image(array $file, string $sub = '', int $maxBytes = 3145728): str
         $err  = curl_error($ch);
         curl_close($ch);
         if ($raw === false) {
-            throw new RuntimeException('ImgBB connect nahi hua: ' . $err);
+            throw new RuntimeException('Could not connect to ImgBB: ' . $err);
         }
     } else {
         $ctx = stream_context_create(['http' => [
@@ -139,14 +139,14 @@ function save_image(array $file, string $sub = '', int $maxBytes = 3145728): str
             $code = (int)$m[1];
         }
         if ($raw === false) {
-            throw new RuntimeException('ImgBB connect nahi hua');
+            throw new RuntimeException('Could not connect to ImgBB');
         }
     }
 
     $json = json_decode($raw, true);
     if (!is_array($json) || empty($json['success']) || empty($json['data']['url'])) {
         $msg = $json['error']['message'] ?? ('HTTP ' . $code);
-        throw new RuntimeException('ImgBB upload fail hua: ' . $msg);
+        throw new RuntimeException('ImgBB upload failed: ' . $msg);
     }
     return (string)$json['data']['url'];
 }
@@ -216,6 +216,6 @@ function deposits_ensure_schema(): void {
             }
         }
     } catch (PDOException $e) {
-        // Table missing: run admin.sql first.
+        // Table missing: run system.sql first.
     }
 }

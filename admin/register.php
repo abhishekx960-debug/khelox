@@ -17,37 +17,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pass2   = (string)($_POST['password2'] ?? '');
     $key     = (string)($_POST['invite_key'] ?? '');
 
-    if (!$firstAdmin && !hash_equals(ADMIN_INVITE_KEY, $key)) $errors[] = 'Invite key galat hai';
-    if (mb_strlen($old['name']) < 2 || mb_strlen($old['name']) > 100) $errors[] = 'Sahi naam daalo';
+    if (!$firstAdmin && !hash_equals(ADMIN_INVITE_KEY, $key)) $errors[] = 'Incorrect invite key';
+    if (mb_strlen($old['name']) < 2 || mb_strlen($old['name']) > 100) $errors[] = 'Enter a valid name';
     if (!preg_match('/^[a-z0-9_]{4,30}$/', $old['username'])) $errors[] = 'Username 4-30 chars: a-z, 0-9, _ only';
-    if (!filter_var($old['email'], FILTER_VALIDATE_EMAIL) || strlen($old['email']) > 190) $errors[] = 'Sahi email daalo';
-    if (!preg_match('/^\+?\d{10,15}$/', $old['phone'])) $errors[] = 'Sahi phone number daalo';
-    if (strlen($pass) < 8) $errors[] = 'Password kam se kam 8 characters';
-    if ($pass !== $pass2) $errors[] = 'Passwords match nahi karte';
+    if (!filter_var($old['email'], FILTER_VALIDATE_EMAIL) || strlen($old['email']) > 190) $errors[] = 'Enter a valid email';
+    if (!preg_match('/^\+?\d{10,15}$/', $old['phone'])) $errors[] = 'Enter a valid phone number';
+    if (strlen($pass) < 8) $errors[] = 'Password must be at least 8 characters';
+    if ($pass !== $pass2) $errors[] = 'Passwords do not match';
 
     if (!$errors) {
         try {
             $q = db()->prepare('SELECT username, email, phone FROM admins WHERE username = ? OR email = ? OR phone = ? LIMIT 1');
             $q->execute([$old['username'], $old['email'], $old['phone']]);
             if ($r = $q->fetch()) {
-                if ($r['username'] === $old['username']) $errors[] = 'Username already liya hua hai';
-                elseif ($r['email'] === $old['email'])   $errors[] = 'Email already registered hai';
-                else                                      $errors[] = 'Phone already registered hai';
+                if ($r['username'] === $old['username']) $errors[] = 'Username is already taken';
+                elseif ($r['email'] === $old['email'])   $errors[] = 'Email is already registered';
+                else                                      $errors[] = 'Phone is already registered';
             } else {
                 db()->prepare('INSERT INTO admins (name, username, email, phone, password_hash) VALUES (?,?,?,?,?)')
                     ->execute([$old['name'], $old['username'], $old['email'], $old['phone'], password_hash($pass, PASSWORD_DEFAULT)]);
-                flash('success', 'Admin ban gaya. Ab login karo.');
+                flash('success', 'Admin created. You can log in now.');
                 header('Location: login.php');
                 exit;
             }
         } catch (PDOException $e) {
-            $errors[] = 'Server error, dobara try karo';
+            $errors[] = 'Server error, please try again';
         }
     }
 }
 
 $authTitle = 'Create admin account';
-$authSub   = $firstAdmin ? 'Pehla admin - invite key ki zaroorat nahi' : 'Naya admin banane ke liye invite key chahiye';
+$authSub   = $firstAdmin ? 'First admin - no invite key needed' : 'Invite key is required to create a new admin';
 require __DIR__ . '/includes/auth_top.php';
 ?>
 <?php if ($errors): ?>

@@ -14,7 +14,7 @@ try {
     $u = $q->fetch();
 
     if (!$u) {
-        respond(404, ['success' => false, 'message' => 'User nahi mila']);
+        respond(404, ['success' => false, 'message' => 'User not found']);
     }
 
     respond(200, [

@@ -56,33 +56,33 @@ try {
     $maxCoins = (float)setting('dcoin_max_deposit', '100000');
 
     if ($inr <= 0) {
-        respond(422, ['success' => false, 'message' => 'Amount daalo']);
+        respond(422, ['success' => false, 'message' => 'Enter an amount']);
     }
     if ($utr === '' || mb_strlen($utr) < 4 || mb_strlen($utr) > 100) {
-        respond(422, ['success' => false, 'message' => 'Sahi Transaction ID daalo']);
+        respond(422, ['success' => false, 'message' => 'Enter a valid transaction ID']);
     }
     if ($proof === '') {
-        respond(422, ['success' => false, 'message' => 'Payment proof upload karo']);
+        respond(422, ['success' => false, 'message' => 'Please upload the payment proof']);
     }
 
     $coins = round($inr / $rate, 2);
     if ($coins < $minCoins) {
-        respond(422, ['success' => false, 'message' => 'Minimum ' . $minCoins . ' Dcoin deposit hai']);
+        respond(422, ['success' => false, 'message' => 'Minimum deposit is ' . $minCoins . ' Dcoin']);
     }
     if ($maxCoins > 0 && $coins > $maxCoins) {
-        respond(422, ['success' => false, 'message' => 'Maximum ' . $maxCoins . ' Dcoin deposit hai']);
+        respond(422, ['success' => false, 'message' => 'Maximum deposit is ' . $maxCoins . ' Dcoin']);
     }
 
     $u = db()->prepare('SELECT id FROM users WHERE id = ? LIMIT 1');
     $u->execute([$userId]);
     if (!$u->fetch()) {
-        respond(404, ['success' => false, 'message' => 'User nahi mila']);
+        respond(404, ['success' => false, 'message' => 'User not found']);
     }
 
     try {
         if (preg_match('~^https?://~i', $proof)) {
             if (!filter_var($proof, FILTER_VALIDATE_URL) || mb_strlen($proof) > 500) {
-                respond(422, ['success' => false, 'message' => 'Proof image URL sahi nahi hai']);
+                respond(422, ['success' => false, 'message' => 'Invalid proof image URL']);
             }
             $imageUrl = $proof;
         } else {
@@ -109,7 +109,7 @@ try {
 
     respond(200, [
         'success'  => true,
-        'message'  => 'Deposit request bhej di gayi',
+        'message'  => 'Deposit request sent',
         'deposit'  => deposit_payload($q->fetch()),
     ]);
 } catch (PDOException $e) {

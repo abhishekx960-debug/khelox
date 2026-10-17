@@ -70,14 +70,14 @@ class _DepositScreenState extends State<DepositScreen> {
 
   String? _validateAmount(double inr) {
     final s = _settings;
-    if (s == null) return 'Settings load nahi hui';
-    if (inr <= 0) return 'Amount daalo';
+    if (s == null) return 'Settings could not be loaded';
+    if (inr <= 0) return 'Enter an amount';
     final coins = inr / (s.dcoinInrRate > 0 ? s.dcoinInrRate : 1);
     if (coins < s.dcoinMinDeposit) {
-      return 'Minimum ${formatCoin(s.dcoinMinDeposit)} Dcoin deposit hai';
+      return 'Minimum deposit is ${formatCoin(s.dcoinMinDeposit)} Dcoin';
     }
     if (s.dcoinMaxDeposit > 0 && coins > s.dcoinMaxDeposit) {
-      return 'Maximum ${formatCoin(s.dcoinMaxDeposit)} Dcoin deposit hai';
+      return 'Maximum deposit is ${formatCoin(s.dcoinMaxDeposit)} Dcoin';
     }
     return null;
   }
@@ -343,7 +343,7 @@ class _DepositPaymentScreenState extends State<DepositPaymentScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_proof.isEmpty) {
-      showMsg(context, 'Payment proof add karo');
+      showMsg(context, 'Please add a payment proof');
       return;
     }
     FocusScope.of(context).unfocus();
@@ -362,8 +362,8 @@ class _DepositPaymentScreenState extends State<DepositPaymentScreen> {
         builder: (ctx) => AlertDialog(
           title: const Text('Request sent'),
           content: Text(
-            'Aapki ${formatCoin(widget.coins)} Dcoin deposit request admin ko '
-            'bhej di gayi hai. Approve hone ke baad coins wallet me add honge.',
+            'Your ${formatCoin(widget.coins)} Dcoin deposit request has been '
+            'sent to the admin. Coins will be added to your wallet after approval.',
           ),
           actions: [
             TextButton(
@@ -459,8 +459,8 @@ class _DepositPaymentScreenState extends State<DepositPaymentScreen> {
                 decoration: AppTheme.surfaceCard(
                     border: AppColors.danger, radius: 14),
                 child: const Text(
-                  'Admin ne payment details abhi set nahi ki hain. '
-                  'Thodi der baad try karo ya support se contact karo.',
+                  'The admin has not set the payment details yet. '
+                  'Please try again later or contact support.',
                   style: TextStyle(color: AppColors.danger, fontSize: 13),
                 ),
               )
@@ -485,7 +485,7 @@ class _DepositPaymentScreenState extends State<DepositPaymentScreen> {
                           height: 120,
                           child: Center(
                             child: Text(
-                              'QR load nahi hua',
+                              'Could not load QR',
                               style: TextStyle(color: Colors.black54),
                             ),
                           ),
@@ -553,7 +553,7 @@ class _DepositPaymentScreenState extends State<DepositPaymentScreen> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'JPG, PNG ya WEBP, max 3MB',
+                        'JPG, PNG or WEBP, max 3MB',
                         style:
                             TextStyle(color: AppColors.mist, fontSize: 12),
                       ),
@@ -608,7 +608,7 @@ class _DepositPaymentScreenState extends State<DepositPaymentScreen> {
                   labelText: 'Payment proof image URL',
                   hintText: 'https://...',
                   prefixIcon: Icon(Icons.link_rounded),
-                  helperText: 'Screenshot ImgBB/Drive par upload karke link paste karo',
+                  helperText: 'Upload the screenshot to ImgBB/Drive and paste the link here',
                 ),
               ),
             const SizedBox(height: 18),
@@ -621,8 +621,8 @@ class _DepositPaymentScreenState extends State<DepositPaymentScreen> {
               ),
               validator: (v) {
                 final s = (v ?? '').trim();
-                if (s.length < 4) return 'Transaction ID daalo';
-                if (s.length > 100) return 'Transaction ID bahut lamba hai';
+                if (s.length < 4) return 'Enter the transaction ID';
+                if (s.length > 100) return 'Transaction ID is too long';
                 return null;
               },
             ),
@@ -636,8 +636,8 @@ class _DepositPaymentScreenState extends State<DepositPaymentScreen> {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 4),
               child: Text(
-                'Payment karke hi proof aur Transaction ID submit karo. '
-                'Admin approve karne ke baad Dcoin wallet me add honge.',
+                'Submit the proof and transaction ID only after making the payment. '
+                'Dcoin will be added to your wallet after admin approval.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.mist, fontSize: 12),
               ),

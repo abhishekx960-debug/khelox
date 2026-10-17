@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'save_deposit') {
         $upi = trim((string)($_POST['deposit_upi_id'] ?? ''));
         if (mb_strlen($upi) > 120) {
-            flash('danger', 'UPI ID bahut lamba hai');
+            flash('danger', 'UPI ID is too long');
         } else {
             setting_set('deposit_upi_id', $upi);
             if (!empty($_FILES['deposit_qr']['name'] ?? '')) {
@@ -18,12 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $old = setting('deposit_qr');
                     setting_set('deposit_qr', save_image($_FILES['deposit_qr']));
                     delete_upload($old);
-                    flash('success', 'Deposit details save ho gayi');
+                    flash('success', 'Deposit details saved');
                 } catch (RuntimeException $ex) {
                     flash('danger', $ex->getMessage());
                 }
             } else {
-                flash('success', 'Deposit details save ho gayi');
+                flash('success', 'Deposit details saved');
             }
         }
         header('Location: settings.php');
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'remove_qr') {
         delete_upload(setting('deposit_qr'));
         setting_set('deposit_qr', '');
-        flash('success', 'QR remove ho gaya');
+        flash('success', 'QR removed');
         header('Location: settings.php');
         exit;
     }
@@ -55,35 +55,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($values as $key => $raw) {
             $raw = trim((string)$raw);
             if ($raw === '' || !is_numeric($raw) || (float)$raw < 0 || (float)$raw > 9999999999) {
-                $errors[] = ucwords(str_replace('_', ' ', $key)) . ' sahi nahi hai';
+                $errors[] = ucwords(str_replace('_', ' ', $key)) . ' is invalid';
                 continue;
             }
             $clean[$key] = (string)round((float)$raw, 2);
         }
         if (!isset($clean['dcoin_inr_rate']) || (float)$clean['dcoin_inr_rate'] <= 0) {
-            $errors[] = '1 Dcoin rate 0 se zyada hona chahiye';
+            $errors[] = '1 Dcoin rate must be greater than 0';
         }
         if (!isset($clean['fcoin_inr_rate']) || (float)$clean['fcoin_inr_rate'] <= 0) {
-            $errors[] = '1 Fcoin rate 0 se zyada hona chahiye';
+            $errors[] = '1 Fcoin rate must be greater than 0';
         }
         if (isset($clean['dcoin_min_deposit'], $clean['dcoin_max_deposit'])
             && (float)$clean['dcoin_max_deposit'] < (float)$clean['dcoin_min_deposit']) {
-            $errors[] = 'Maximum Dcoin deposit minimum se chota nahi ho sakta';
+            $errors[] = 'Maximum Dcoin deposit cannot be less than the minimum';
         }
         if (isset($clean['fcoin_min_withdraw'], $clean['fcoin_max_withdraw'])
             && (float)$clean['fcoin_max_withdraw'] < (float)$clean['fcoin_min_withdraw']) {
-            $errors[] = 'Maximum Fcoin withdraw minimum se chota nahi ho sakta';
+            $errors[] = 'Maximum Fcoin withdrawal cannot be less than the minimum';
         }
         if (isset($clean['wcoin_min_withdraw'], $clean['wcoin_max_withdraw'])
             && (float)$clean['wcoin_max_withdraw'] < (float)$clean['wcoin_min_withdraw']) {
-            $errors[] = 'Maximum Wcoin withdraw minimum se chota nahi ho sakta';
+            $errors[] = 'Maximum Wcoin withdrawal cannot be less than the minimum';
         }
 
         if ($errors) {
             flash('danger', implode(' | ', $errors));
         } else {
             foreach ($clean as $key => $value) setting_set($key, $value);
-            flash('success', 'Coin rates aur limits save ho gayi');
+            flash('success', 'Coin rates and limits saved');
         }
         header('Location: settings.php');
         exit;
@@ -97,10 +97,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $note     = trim((string)($_POST['support_note'] ?? ''));
 
         $errors = [];
-        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Support email sahi nahi hai';
-        if ($whatsapp !== '' && !preg_match('/^\+?\d{10,15}$/', preg_replace('/[\s-]/', '', $whatsapp))) $errors[] = 'WhatsApp number sahi nahi hai';
-        if ($telegram !== '' && !preg_match('~^@?[A-Za-z0-9_]{4,32}$~', $telegram)) $errors[] = 'Telegram username sahi nahi hai';
-        if (mb_strlen($note) > 500) $errors[] = 'Note 500 characters se chota rakho';
+        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Support email is invalid';
+        if ($whatsapp !== '' && !preg_match('/^\+?\d{10,15}$/', preg_replace('/[\s-]/', '', $whatsapp))) $errors[] = 'WhatsApp number is invalid';
+        if ($telegram !== '' && !preg_match('~^@?[A-Za-z0-9_]{4,32}$~', $telegram)) $errors[] = 'Telegram username is invalid';
+        if (mb_strlen($note) > 500) $errors[] = 'Note must be within 500 characters';
 
         if ($errors) {
             flash('danger', implode(' | ', $errors));
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setting_set('support_whatsapp', $whatsapp);
             setting_set('support_telegram', $telegram);
             setting_set('support_note', $note);
-            flash('success', 'Support details save ho gayi');
+            flash('success', 'Support details saved');
         }
         header('Location: settings.php');
         exit;
@@ -128,7 +128,7 @@ $qr = setting('deposit_qr');
         <div class="card h-100">
             <div class="card-header"><h2><i class="bi bi-qr-code-scan me-2 text-primary"></i>Deposit Details</h2></div>
             <div class="card-body">
-                <p class="text-muted small">Jab user coin deposit karega to yahi QR aur UPI ID dikhega.</p>
+                <p class="text-muted small">This QR code and UPI ID will be shown to users on the deposit screen.</p>
                 <form method="post" enctype="multipart/form-data" autocomplete="off">
                     <?= csrf_field() ?>
                     <input type="hidden" name="action" value="save_deposit">
@@ -142,7 +142,7 @@ $qr = setting('deposit_qr');
                     <div class="mb-3">
                         <label class="form-label">Payment QR Code</label>
                         <input type="file" name="deposit_qr" class="form-control" accept="image/png,image/jpeg,image/webp">
-                        <div class="form-text">JPG, PNG ya WEBP, max 3MB. Naya upload karne par purana replace ho jayega.</div>
+                        <div class="form-text">JPG, PNG or WEBP, max 3MB. Uploading a new file replaces the old one.</div>
                     </div>
                     <?php if ($qr): ?>
                         <div class="mb-3 d-flex align-items-center gap-3">
@@ -153,7 +153,7 @@ $qr = setting('deposit_qr');
                     <button class="btn btn-primary w-100"><i class="bi bi-check-lg me-1"></i>Save Deposit Details</button>
                 </form>
                 <?php if ($qr): ?>
-                    <form method="post" class="mt-2" onsubmit="return confirm('QR remove karna hai?')">
+                    <form method="post" class="mt-2" onsubmit="return confirm('Remove this QR code?')">
                         <?= csrf_field() ?>
                         <input type="hidden" name="action" value="remove_qr">
                         <button class="btn btn-outline-danger w-100"><i class="bi bi-trash me-1"></i>Remove QR</button>
@@ -201,7 +201,7 @@ $qr = setting('deposit_qr');
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Support Note</label>
-                        <textarea name="support_note" class="form-control" rows="3" maxlength="500" placeholder="Support 10:00 AM - 8:00 PM available hai"><?= e(setting('support_note')) ?></textarea>
+                        <textarea name="support_note" class="form-control" rows="3" maxlength="500" placeholder="Support available 10:00 AM - 8:00 PM"><?= e(setting('support_note')) ?></textarea>
                     </div>
                     <button class="btn btn-primary w-100"><i class="bi bi-check-lg me-1"></i>Save Support Details</button>
                 </form>
@@ -212,7 +212,7 @@ $qr = setting('deposit_qr');
 <div class="card mt-3">
     <div class="card-header"><h2><i class="bi bi-sliders me-2 text-primary"></i>Coin Rates &amp; Limits</h2></div>
     <div class="card-body">
-        <p class="text-muted small">Ye values app ke deposit aur withdraw screens me turant apply hoti hain.</p>
+        <p class="text-muted small">These values apply immediately to the deposit and withdraw screens in the app.</p>
         <form method="post" autocomplete="off">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="save_finance">

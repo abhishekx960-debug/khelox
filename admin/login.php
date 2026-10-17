@@ -14,9 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['lock']  = $_SESSION['lock'] ?? 0;
 
     if ($_SESSION['lock'] > time()) {
-        $error = 'Bahut attempts. ' . ($_SESSION['lock'] - time()) . ' sec baad try karo.';
+        $error = 'Too many attempts. Try again in ' . ($_SESSION['lock'] - time()) . ' seconds.';
     } elseif ($username === '' || $pass === '') {
-        $error = 'Username aur password daalo';
+        $error = 'Enter your username and password';
     } else {
         $q = db()->prepare('SELECT id, name, username, password_hash, status FROM admins WHERE username = ? LIMIT 1');
         $q->execute([$username]);
@@ -25,9 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$a || !password_verify($pass, $a['password_hash'])) {
             $_SESSION['tries']++;
             if ($_SESSION['tries'] >= 5) { $_SESSION['lock'] = time() + 300; $_SESSION['tries'] = 0; }
-            $error = 'Username ya password galat hai';
+            $error = 'Incorrect username or password';
         } elseif ((int)$a['status'] !== 1) {
-            $error = 'Account disabled hai';
+            $error = 'Account is disabled';
         } else {
             session_regenerate_id(true);
             $_SESSION['tries'] = 0;
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $hasAdmin = (int)db()->query('SELECT COUNT(*) FROM admins')->fetchColumn() > 0;
 $authTitle = 'Welcome back';
-$authSub   = 'Apne admin account se login karo';
+$authSub   = 'Sign in to your admin account';
 require __DIR__ . '/includes/auth_top.php';
 ?>
 <?php if ($error): ?><div class="alert alert-danger py-2"><i class="bi bi-exclamation-circle me-1"></i><?= e($error) ?></div><?php endif; ?>
@@ -68,7 +68,7 @@ require __DIR__ . '/includes/auth_top.php';
     <button class="btn btn-primary w-100 py-2">Login <i class="bi bi-arrow-right ms-1"></i></button>
 </form>
 <p class="text-center text-muted small mt-4 mb-0">
-    <?= $hasAdmin ? 'Naya admin chahiye?' : 'Koi admin nahi hai.' ?>
-    <a href="register.php" class="fw-semibold text-decoration-none"><?= $hasAdmin ? 'Register' : 'Pehla admin banao' ?></a>
+    <?= $hasAdmin ? 'Need a new admin?' : 'No admin exists yet.' ?>
+    <a href="register.php" class="fw-semibold text-decoration-none"><?= $hasAdmin ? 'Register' : 'Create the first admin' ?></a>
 </p>
 <?php require __DIR__ . '/includes/auth_bottom.php'; ?>

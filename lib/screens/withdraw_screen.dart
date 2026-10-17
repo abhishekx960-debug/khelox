@@ -89,10 +89,10 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
 
   String? _validateAmount(String? v) {
     final amount = double.tryParse((v ?? '').trim()) ?? 0;
-    if (amount <= 0) return 'Amount daalo';
-    if (amount < _min) return 'Minimum ${formatCoin(_min)} hai';
-    if (_max > 0 && amount > _max) return 'Maximum ${formatCoin(_max)} hai';
-    if (amount > _balance) return 'Balance kam hai';
+    if (amount <= 0) return 'Enter an amount';
+    if (amount < _min) return 'Minimum is ${formatCoin(_min)}';
+    if (_max > 0 && amount > _max) return 'Maximum is ${formatCoin(_max)}';
+    if (amount > _balance) return 'Insufficient balance';
     return null;
   }
 
@@ -114,9 +114,9 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
         builder: (ctx) => AlertDialog(
           title: const Text('Request sent'),
           content: Text(
-            'Aapki ${formatCoin(double.tryParse(_amount.text.trim()) ?? 0)} '
-            '${_isWcoin ? 'Wcoin' : 'Fcoin'} withdraw request admin ko bhej di '
-            'gayi hai. Approve hone par payment ki jayegi.',
+            'Your ${formatCoin(double.tryParse(_amount.text.trim()) ?? 0)} '
+            '${_isWcoin ? 'Wcoin' : 'Fcoin'} withdrawal request has been sent '
+            'to the admin. Payment will be made after approval.',
           ),
           actions: [
             TextButton(
@@ -294,8 +294,8 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
             ),
             validator: (v) {
               final s = (v ?? '').trim();
-              if (s.isEmpty) return 'UPI ID daalo';
-              if (s.length > 120) return 'UPI ID bahut lambi hai';
+              if (s.isEmpty) return 'Enter UPI ID';
+              if (s.length > 120) return 'UPI ID is too long';
               return null;
             },
           ),
@@ -307,8 +307,8 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
           ),
           const SizedBox(height: 10),
           const Text(
-            'Withdraw approve hone par payment ki jayegi. Reject hone par '
-            'reason Transaction History me dikhega.',
+            'Payment will be made after the withdrawal is approved. If rejected, '
+            'the reason will be shown in Transaction History.',
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.mist, fontSize: 12),
           ),
