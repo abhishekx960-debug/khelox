@@ -38,6 +38,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    if ($action === 'save_finance') {
+        $values = [
+            'dcoin_inr_rate'     => $_POST['dcoin_inr_rate'] ?? '',
+            'dcoin_min_deposit'  => $_POST['dcoin_min_deposit'] ?? '',
+            'dcoin_max_deposit'  => $_POST['dcoin_max_deposit'] ?? '',
+            'fcoin_inr_rate'     => $_POST['fcoin_inr_rate'] ?? '',
+            'fcoin_min_withdraw' => $_POST['fcoin_min_withdraw'] ?? '',
+            'fcoin_max_withdraw' => $_POST['fcoin_max_withdraw'] ?? '',
+            'wcoin_min_withdraw' => $_POST['wcoin_min_withdraw'] ?? '',
+            'wcoin_max_withdraw' => $_POST['wcoin_max_withdraw'] ?? '',
+        ];
+
+        $clean = [];
+        $errors = [];
+        foreach ($values as $key => $raw) {
+            $raw = trim((string)$raw);
+            if ($raw === '' || !is_numeric($raw) || (float)$raw < 0 || (float)$raw > 9999999999) {
+                $errors[] = ucwords(str_replace('_', ' ', $key)) . ' sahi nahi hai';
+                continue;
+            }
+            $clean[$key] = (string)round((float)$raw, 2);
+        }
+        if (!isset($clean['dcoin_inr_rate']) || (float)$clean['dcoin_inr_rate'] <= 0) {
+            $errors[] = '1 Dcoin rate 0 se zyada hona chahiye';
+        }
+        if (!isset($clean['fcoin_inr_rate']) || (float)$clean['fcoin_inr_rate'] <= 0) {
+            $errors[] = '1 Fcoin rate 0 se zyada hona chahiye';
+        }
+        if (isset($clean['dcoin_min_deposit'], $clean['dcoin_max_deposit'])
+            && (float)$clean['dcoin_max_deposit'] < (float)$clean['dcoin_min_deposit']) {
+            $errors[] = 'Maximum Dcoin deposit minimum se chota nahi ho sakta';
+        }
+        if (isset($clean['fcoin_min_withdraw'], $clean['fcoin_max_withdraw'])
+            && (float)$clean['fcoin_max_withdraw'] < (float)$clean['fcoin_min_withdraw']) {
+            $errors[] = 'Maximum Fcoin withdraw minimum se chota nahi ho sakta';
+        }
+        if (isset($clean['wcoin_min_withdraw'], $clean['wcoin_max_withdraw'])
+            && (float)$clean['wcoin_max_withdraw'] < (float)$clean['wcoin_min_withdraw']) {
+            $errors[] = 'Maximum Wcoin withdraw minimum se chota nahi ho sakta';
+        }
+
+        if ($errors) {
+            flash('danger', implode(' | ', $errors));
+        } else {
+            foreach ($clean as $key => $value) setting_set($key, $value);
+            flash('success', 'Coin rates aur limits save ho gayi');
+        }
+        header('Location: settings.php');
+        exit;
+    }
+
     if ($action === 'save_support') {
         $email    = trim((string)($_POST['support_email'] ?? ''));
         $phone    = trim((string)($_POST['support_phone'] ?? ''));
@@ -156,6 +207,72 @@ $qr = setting('deposit_qr');
                 </form>
             </div>
         </div>
+    </div>
+</div>
+<div class="card mt-3">
+    <div class="card-header"><h2><i class="bi bi-sliders me-2 text-primary"></i>Coin Rates &amp; Limits</h2></div>
+    <div class="card-body">
+        <p class="text-muted small">Ye values app ke deposit aur withdraw screens me turant apply hoti hain.</p>
+        <form method="post" autocomplete="off">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="save_finance">
+            <div class="row g-3">
+                <div class="col-lg-6">
+                    <div class="p-3 rounded border h-100">
+                        <h3 class="h6 fw-bold mb-3"><i class="bi bi-diamond me-1 text-info"></i>Dcoin (Deposit)</h3>
+                        <div class="mb-3">
+                            <label class="form-label">1 Dcoin = ? INR</label>
+                            <input type="number" step="0.01" min="0.01" name="dcoin_inr_rate" class="form-control" value="<?= e(setting('dcoin_inr_rate', '1')) ?>" required>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label class="form-label">Minimum Dcoin Deposit</label>
+                                <input type="number" step="0.01" min="0" name="dcoin_min_deposit" class="form-control" value="<?= e(setting('dcoin_min_deposit', '10')) ?>" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="form-label">Maximum Dcoin Deposit</label>
+                                <input type="number" step="0.01" min="0" name="dcoin_max_deposit" class="form-control" value="<?= e(setting('dcoin_max_deposit', '100000')) ?>" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="p-3 rounded border h-100">
+                        <h3 class="h6 fw-bold mb-3"><i class="bi bi-coin me-1 text-warning"></i>Fcoin (Withdraw)</h3>
+                        <div class="mb-3">
+                            <label class="form-label">1 Fcoin = ? INR</label>
+                            <input type="number" step="0.01" min="0.01" name="fcoin_inr_rate" class="form-control" value="<?= e(setting('fcoin_inr_rate', '0.50')) ?>" required>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label class="form-label">Minimum Fcoin Withdraw</label>
+                                <input type="number" step="0.01" min="0" name="fcoin_min_withdraw" class="form-control" value="<?= e(setting('fcoin_min_withdraw', '100')) ?>" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="form-label">Maximum Fcoin Withdraw</label>
+                                <input type="number" step="0.01" min="0" name="fcoin_max_withdraw" class="form-control" value="<?= e(setting('fcoin_max_withdraw', '100000')) ?>" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="p-3 rounded border h-100">
+                        <h3 class="h6 fw-bold mb-3"><i class="bi bi-wallet2 me-1 text-success"></i>Wcoin (Withdraw)</h3>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label class="form-label">Minimum Wcoin Withdraw</label>
+                                <input type="number" step="0.01" min="0" name="wcoin_min_withdraw" class="form-control" value="<?= e(setting('wcoin_min_withdraw', '100')) ?>" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="form-label">Maximum Wcoin Withdraw</label>
+                                <input type="number" step="0.01" min="0" name="wcoin_max_withdraw" class="form-control" value="<?= e(setting('wcoin_max_withdraw', '100000')) ?>" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary mt-3"><i class="bi bi-check-lg me-1"></i>Save Coin Settings</button>
+        </form>
     </div>
 </div>
 <?php require __DIR__ . '/includes/footer.php'; ?>

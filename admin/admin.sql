@@ -40,21 +40,26 @@ CREATE TABLE IF NOT EXISTS settings (
   setting_value TEXT         NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Manage Deposits (table ready, admin page upcoming)
+-- Manage Deposits
 CREATE TABLE IF NOT EXISTS deposits (
   id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id       INT UNSIGNED NOT NULL,
   amount        DECIMAL(12,2) NOT NULL DEFAULT 0,
-  coin_type     VARCHAR(10)   NOT NULL DEFAULT 'fcoin',
+  coins         DECIMAL(12,2) NOT NULL DEFAULT 0,
+  inr_amount    DECIMAL(12,2) NOT NULL DEFAULT 0,
+  coin_type     VARCHAR(10)   NOT NULL DEFAULT 'dcoin',
   utr           VARCHAR(100)  NULL,
+  reject_reason VARCHAR(255)  NULL,
   screenshot    VARCHAR(255)  NULL,
   status        TINYINT(1)    NOT NULL DEFAULT 0,
+  credited      TINYINT(1)    NOT NULL DEFAULT 0,
   created_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   KEY idx_deposit_user (user_id),
   KEY idx_deposit_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Manage Fcoin Withdraws (table ready, admin page upcoming)
+-- Manage Fcoin Withdraws
 CREATE TABLE IF NOT EXISTS fcoin_withdraws (
   id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id    INT UNSIGNED NOT NULL,
@@ -67,7 +72,7 @@ CREATE TABLE IF NOT EXISTS fcoin_withdraws (
   KEY idx_fwithdraw_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Manage Wcoin Withdraws (table ready, admin page upcoming)
+-- Manage Wcoin Withdraws
 CREATE TABLE IF NOT EXISTS wcoin_withdraws (
   id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id    INT UNSIGNED NOT NULL,

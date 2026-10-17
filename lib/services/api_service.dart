@@ -103,6 +103,132 @@ class SupportModel {
       );
 }
 
+class FinanceSettings {
+  final double dcoinInrRate;
+  final double dcoinMinDeposit;
+  final double dcoinMaxDeposit;
+  final double fcoinInrRate;
+  final double fcoinMinWithdraw;
+  final double fcoinMaxWithdraw;
+  final double wcoinMinWithdraw;
+  final double wcoinMaxWithdraw;
+  final String depositUpiId;
+  final String depositQr;
+
+  const FinanceSettings({
+    this.dcoinInrRate = 1,
+    this.dcoinMinDeposit = 10,
+    this.dcoinMaxDeposit = 100000,
+    this.fcoinInrRate = 0.5,
+    this.fcoinMinWithdraw = 100,
+    this.fcoinMaxWithdraw = 100000,
+    this.wcoinMinWithdraw = 100,
+    this.wcoinMaxWithdraw = 100000,
+    this.depositUpiId = '',
+    this.depositQr = '',
+  });
+
+  static double _d(dynamic v, double fallback) {
+    final parsed = double.tryParse('${v ?? ''}');
+    return parsed ?? fallback;
+  }
+
+  factory FinanceSettings.fromJson(Map<String, dynamic> j) => FinanceSettings(
+        dcoinInrRate: _d(j['dcoin_inr_rate'], 1),
+        dcoinMinDeposit: _d(j['dcoin_min_deposit'], 10),
+        dcoinMaxDeposit: _d(j['dcoin_max_deposit'], 100000),
+        fcoinInrRate: _d(j['fcoin_inr_rate'], 0.5),
+        fcoinMinWithdraw: _d(j['fcoin_min_withdraw'], 100),
+        fcoinMaxWithdraw: _d(j['fcoin_max_withdraw'], 100000),
+        wcoinMinWithdraw: _d(j['wcoin_min_withdraw'], 100),
+        wcoinMaxWithdraw: _d(j['wcoin_max_withdraw'], 100000),
+        depositUpiId: '${j['deposit_upi_id'] ?? ''}',
+        depositQr: '${j['deposit_qr'] ?? ''}',
+      );
+}
+
+enum TxStatus {
+  pending('Pending'),
+  approved('Approved'),
+  rejected('Rejected');
+
+  final String label;
+  const TxStatus(this.label);
+
+  static TxStatus parse(dynamic v) {
+    switch ('$v') {
+      case 'approved':
+        return TxStatus.approved;
+      case 'rejected':
+        return TxStatus.rejected;
+    }
+    return TxStatus.pending;
+  }
+}
+
+class DepositModel {
+  final int id;
+  final double coins;
+  final double inrAmount;
+  final String utr;
+  final String proof;
+  final TxStatus status;
+  final String rejectReason;
+  final DateTime? createdAt;
+
+  const DepositModel({
+    required this.id,
+    required this.coins,
+    required this.inrAmount,
+    required this.utr,
+    required this.proof,
+    required this.status,
+    required this.rejectReason,
+    this.createdAt,
+  });
+
+  factory DepositModel.fromJson(Map<String, dynamic> j) => DepositModel(
+        id: int.tryParse('${j['id'] ?? 0}') ?? 0,
+        coins: double.tryParse('${j['coins'] ?? 0}') ?? 0,
+        inrAmount: double.tryParse('${j['inr_amount'] ?? 0}') ?? 0,
+        utr: '${j['utr'] ?? ''}',
+        proof: '${j['proof'] ?? ''}',
+        status: TxStatus.parse(j['status']),
+        rejectReason: '${j['reject_reason'] ?? ''}',
+        createdAt: DateTime.tryParse('${j['created_at'] ?? ''}'),
+      );
+}
+
+class WithdrawalModel {
+  final int id;
+  final String type;
+  final double amount;
+  final String upiId;
+  final TxStatus status;
+  final String remark;
+  final DateTime? createdAt;
+
+  const WithdrawalModel({
+    required this.id,
+    required this.type,
+    required this.amount,
+    required this.upiId,
+    required this.status,
+    required this.remark,
+    this.createdAt,
+  });
+
+  factory WithdrawalModel.fromJson(Map<String, dynamic> j) => WithdrawalModel(
+        id: int.tryParse('${j['id'] ?? 0}') ?? 0,
+        type: '${j['type'] ?? 'fcoin'}',
+        amount: double.tryParse('${j['amount'] ?? 0}') ?? 0,
+        upiId: '${j['upi_id'] ?? ''}',
+        status: TxStatus.parse(j['status']),
+        remark: '${j['remark'] ?? ''}',
+        createdAt: DateTime.tryParse('${j['created_at'] ?? ''}'),
+      );
+}
+
 class ApiService {
   static Future<Map<String, dynamic>> _post(
     String endpoint,
@@ -118,7 +244,7 @@ class ApiService {
             },
             body: jsonEncode(body),
           )
-          .timeout(const Duration(seconds: 20));
+          .timeout(const Duration(seconds: 45));
 
       final data = jsonDecode(res.body) as Map<String, dynamic>;
       if (data['success'] == true) return data;
@@ -181,6 +307,74 @@ class ApiService {
     return support is Map<String, dynamic>
         ? SupportModel.fromJson(support)
         : const SupportModel();
+  }
+
+  static Future<FinanceSettings> fetchFinanceSettings() async {
+    final data = await _post('settings.php', const {});
+    final settings = data['settings'];
+    return settings is Map<String, dynamic>
+        ? FinanceSettings.fromJson(settings)
+        : const FinanceSettings();
+  }
+
+  static Future<List<DepositModel>> fetchDeposits(int userId) async {
+    final data = await _post('deposits.php', {
+      'action': 'history',
+      'user_id': userId,
+    });
+    final list = data['deposits'];
+    if (list is! List) return const [];
+    return [
+      for (final item in list)
+        if (item is Map<String, dynamic>) DepositModel.fromJson(item),
+    ];
+  }
+
+  static Future<DepositModel> createDeposit({
+    required int userId,
+    required double inrAmount,
+    required String utr,
+    required String proof,
+  }) async {
+    final data = await _post('deposits.php', {
+      'action': 'create',
+      'user_id': userId,
+      'inr_amount': inrAmount,
+      'utr': utr.trim(),
+      'proof': proof,
+    });
+    return DepositModel.fromJson(data['deposit'] as Map<String, dynamic>);
+  }
+
+  static Future<List<WithdrawalModel>> fetchWithdrawals(int userId) async {
+    final data = await _post('withdrawals.php', {
+      'action': 'history',
+      'user_id': userId,
+    });
+    final list = data['withdrawals'];
+    if (list is! List) return const [];
+    return [
+      for (final item in list)
+        if (item is Map<String, dynamic>) WithdrawalModel.fromJson(item),
+    ];
+  }
+
+  static Future<WithdrawalModel> createWithdrawal({
+    required int userId,
+    required String type,
+    required double amount,
+    required String upiId,
+  }) async {
+    final data = await _post('withdrawals.php', {
+      'action': 'create',
+      'user_id': userId,
+      'type': type,
+      'amount': amount,
+      'upi_id': upiId.trim(),
+    });
+    return WithdrawalModel.fromJson(
+      data['withdrawal'] as Map<String, dynamic>,
+    );
   }
 }
 

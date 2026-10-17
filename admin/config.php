@@ -179,3 +179,43 @@ function setting_set(string $key, string $value): void {
                    ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)')
         ->execute([$key, $value]);
 }
+
+/**
+ * Older installs have the deposits table without proof/rejection columns.
+ * Add them on first use so existing databases keep working.
+ */
+function deposits_ensure_schema(): void {
+    static $done = false;
+    if ($done) return;
+    $done = true;
+
+    try {
+        $columns = [];
+        foreach (db()->query('SHOW COLUMNS FROM deposits') as $col) {
+            $columns[$col['Field']] = true;
+        }
+        $alter = [];
+        if (!isset($columns['coins'])) {
+            $alter[] = 'ADD COLUMN coins DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER amount';
+        }
+        if (!isset($columns['inr_amount'])) {
+            $alter[] = 'ADD COLUMN inr_amount DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER coins';
+        }
+        if (!isset($columns['reject_reason'])) {
+            $alter[] = 'ADD COLUMN reject_reason VARCHAR(255) NULL AFTER utr';
+        }
+        if (!isset($columns['credited'])) {
+            $alter[] = 'ADD COLUMN credited TINYINT(1) NOT NULL DEFAULT 0 AFTER status';
+        }
+        if (!isset($columns['updated_at'])) {
+            $alter[] = 'ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER created_at';
+        }
+        if ($alter) {
+            foreach ($alter as $clause) {
+                db()->exec('ALTER TABLE deposits ' . $clause);
+            }
+        }
+    } catch (PDOException $e) {
+        // Table missing: run admin.sql first.
+    }
+}

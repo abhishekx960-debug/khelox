@@ -4,6 +4,9 @@ import '../theme/app_theme.dart';
 import '../widgets/auth_widgets.dart';
 import '../widgets/coin_chip.dart';
 import '../widgets/khelox_app_bar.dart';
+import 'deposit_screen.dart';
+import 'transaction_history_screen.dart';
+import 'withdraw_screen.dart';
 
 class WalletScreen extends StatelessWidget {
   final UserModel user;
@@ -53,7 +56,14 @@ class WalletScreen extends StatelessWidget {
                 type: CoinType.fcoin,
                 onTap: () {
                   Navigator.pop(ctx);
-                  showMsg(context, 'Fcoin withdraw - coming soon');
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => WithdrawScreen(
+                        user: user,
+                        initialType: 'fcoin',
+                      ),
+                    ),
+                  );
                 },
               ),
               const SizedBox(height: 12),
@@ -61,7 +71,14 @@ class WalletScreen extends StatelessWidget {
                 type: CoinType.wcoin,
                 onTap: () {
                   Navigator.pop(ctx);
-                  showMsg(context, 'Wcoin withdraw - coming soon');
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => WithdrawScreen(
+                        user: user,
+                        initialType: 'wcoin',
+                      ),
+                    ),
+                  );
                 },
               ),
             ],
@@ -105,13 +122,17 @@ class WalletScreen extends StatelessWidget {
             const SizedBox(height: 28),
             Row(
               children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => showMsg(context, 'Deposit - coming soon'),
-                    icon: const Icon(Icons.add_rounded),
-                    label: const Text('Deposit'),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => DepositScreen(user: user),
+                    ),
                   ),
+                  icon: const Icon(Icons.add_rounded),
+                  label: const Text('Deposit'),
                 ),
+              ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton.icon(
@@ -134,6 +155,16 @@ class WalletScreen extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 10),
+            TextButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => TransactionHistoryScreen(user: user),
+                ),
+              ),
+              icon: const Icon(Icons.history_rounded, size: 18),
+              label: const Text('Transaction History'),
             ),
           ],
         ),

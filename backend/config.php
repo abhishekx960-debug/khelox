@@ -5,6 +5,9 @@ define('DB_NAME', 'u758638448_khelox');
 define('DB_USER', 'u758638448_khelox');
 define('DB_PASS', '>w3IUDO#+47I');
 
+// Image hosting for payment proof screenshots.
+define('IMGBB_API_KEY', '66078ac1ded9c8184ec8c35bd8b9dc7a');
+
 header('Content-Type: application/json; charset=utf-8');
 
 // Flutter Web se aane wale cross-origin requests allow karo.
@@ -50,4 +53,121 @@ function json_input(): array {
     }
     $data = json_decode(file_get_contents('php://input'), true);
     return is_array($data) ? $data : [];
+}
+
+/**
+ * Settings table is shared with the admin panel, so no schema change is
+ * needed for the finance rates/limits. Missing keys fall back to defaults.
+ */
+function settings_all(): array {
+    static $cache = null;
+    if ($cache === null) {
+        $cache = [];
+        try {
+            foreach (db()->query('SELECT setting_key, setting_value FROM settings') as $r) {
+                $cache[$r['setting_key']] = (string)($r['setting_value'] ?? '');
+            }
+        } catch (PDOException $e) {
+            $cache = [];
+        }
+    }
+    return $cache;
+}
+
+function setting(string $key, string $default = ''): string {
+    $value = settings_all()[$key] ?? '';
+    return $value !== '' ? $value : $default;
+}
+
+/**
+ * The deposits table existed before proof/rejection support. This keeps the
+ * live database usable without asking the admin to run SQL manually.
+ */
+function deposits_ensure_schema(): void {
+    static $done = false;
+    if ($done) return;
+    $done = true;
+
+    try {
+        $columns = [];
+        foreach (db()->query('SHOW COLUMNS FROM deposits') as $col) {
+            $columns[$col['Field']] = true;
+        }
+        $alter = [];
+        if (!isset($columns['coins'])) {
+            $alter[] = 'ADD COLUMN coins DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER amount';
+        }
+        if (!isset($columns['inr_amount'])) {
+            $alter[] = 'ADD COLUMN inr_amount DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER coins';
+        }
+        if (!isset($columns['reject_reason'])) {
+            $alter[] = 'ADD COLUMN reject_reason VARCHAR(255) NULL AFTER utr';
+        }
+        if (!isset($columns['credited'])) {
+            $alter[] = 'ADD COLUMN credited TINYINT(1) NOT NULL DEFAULT 0 AFTER status';
+        }
+        if (!isset($columns['updated_at'])) {
+            $alter[] = 'ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER created_at';
+        }
+        if ($alter) {
+            foreach ($alter as $clause) {
+                db()->exec('ALTER TABLE deposits ' . $clause);
+            }
+        }
+    } catch (PDOException $e) {
+        // Table may not exist yet; the original schema.sql creates it.
+    }
+}
+
+/**
+ * Uploads a base64 data-URL image to ImgBB and returns the public URL.
+ */
+function upload_data_image(string $dataUrl): string {
+    if (!preg_match('~^data:(image/(?:png|jpeg|jpg|webp|gif));base64,(.+)$~s', $dataUrl, $m)) {
+        throw new InvalidArgumentException('Sahi image file chuno');
+    }
+    $raw = base64_decode($m[2], true);
+    if ($raw === false || $raw === '') {
+        throw new InvalidArgumentException('Image padhi nahi ja saki');
+    }
+    if (strlen($raw) > 3145728) {
+        throw new InvalidArgumentException('Image 3MB se choti honi chahiye');
+    }
+
+    $payload = http_build_query([
+        'key'   => IMGBB_API_KEY,
+        'image' => base64_encode($raw),
+    ]);
+    $url = 'https://api.imgbb.com/1/upload';
+
+    $result = false;
+    if (function_exists('curl_init')) {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 30,
+        ]);
+        $result = curl_exec($ch);
+        curl_close($ch);
+    } else {
+        $ctx = stream_context_create(['http' => [
+            'method'        => 'POST',
+            'header'        => "Content-Type: application/x-www-form-urlencoded\r\n",
+            'content'       => $payload,
+            'timeout'       => 30,
+            'ignore_errors' => true,
+        ]]);
+        $result = @file_get_contents($url, false, $ctx);
+    }
+
+    if ($result === false) {
+        throw new RuntimeException('Image upload nahi hua, dobara try karo');
+    }
+    $json = json_decode($result, true);
+    if (!is_array($json) || empty($json['success']) || empty($json['data']['url'])) {
+        throw new RuntimeException('Image upload fail hua, dobara try karo');
+    }
+    return (string)$json['data']['url'];
 }

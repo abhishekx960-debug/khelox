@@ -58,7 +58,7 @@ a{color:var(--brand)}
 .table-hover>tbody>tr:hover>*{--bs-table-bg-state:#f9faff}
 .chip{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;border-radius:2rem;font-size:.76rem;font-weight:600}
 .chip-f{background:#ececff;color:#4a4ac2}.chip-d{background:#e2f1fd;color:#1673bd}.chip-w{background:#fff3dc;color:#b06f00}
-.badge-soft-success{background:#e3f8ee;color:#12875a}.badge-soft-secondary{background:#eceef3;color:#5b6270}
+.badge-soft-success{background:#e3f8ee;color:#12875a}.badge-soft-secondary{background:#eceef3;color:#5b6270}.badge-soft-warning{background:#fff4dd;color:#b7791f}.badge-soft-danger{background:#fdecec;color:#c0392b}
 .empty{padding:2.5rem 1rem;text-align:center;color:var(--muted)}.empty i{font-size:2rem;display:block;margin-bottom:.4rem;opacity:.5}
 .pagination .page-link{color:var(--brand);border-color:var(--line)}
 .pagination .active>.page-link{background:var(--brand);border-color:var(--brand);color:#fff}
