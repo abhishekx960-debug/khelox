@@ -58,6 +58,27 @@ class UserModel {
       };
 }
 
+class CarouselModel {
+  final int id;
+  final String title;
+  final String image;
+  final String moreInfoUrl;
+
+  const CarouselModel({
+    required this.id,
+    required this.title,
+    required this.image,
+    required this.moreInfoUrl,
+  });
+
+  factory CarouselModel.fromJson(Map<String, dynamic> j) => CarouselModel(
+        id: int.tryParse('${j['id'] ?? 0}') ?? 0,
+        title: '${j['title'] ?? ''}',
+        image: '${j['image'] ?? ''}',
+        moreInfoUrl: '${j['more_info_url'] ?? ''}',
+      );
+}
+
 class ApiService {
   static Future<Map<String, dynamic>> _post(
     String endpoint,
@@ -118,6 +139,16 @@ class ApiService {
   static Future<UserModel> fetchUser(int id) async {
     final data = await _post('user.php', {'id': id});
     return UserModel.fromJson(data['user'] as Map<String, dynamic>);
+  }
+
+  static Future<List<CarouselModel>> fetchCarousels() async {
+    final data = await _post('carousels.php', const {});
+    final list = data['carousels'];
+    if (list is! List) return const [];
+    return [
+      for (final item in list)
+        if (item is Map<String, dynamic>) CarouselModel.fromJson(item),
+    ];
   }
 }
 

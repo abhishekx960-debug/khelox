@@ -1,7 +1,6 @@
 <?php
-$pageTitle = 'Users';
-$active = 'users';
-require __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/config.php';
+require_login();
 $pdo = db();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'coins') {
@@ -22,6 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'coins
     header('Location: users.php?' . http_build_query(['q' => $_GET['q'] ?? '', 'page' => $_GET['page'] ?? 1]));
     exit;
 }
+
+$pageTitle = 'Users';
+$active = 'users';
+require __DIR__ . '/includes/header.php';
 
 $q = trim((string)($_GET['q'] ?? ''));
 $page = max(1, (int)($_GET['page'] ?? 1));

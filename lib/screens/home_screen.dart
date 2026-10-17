@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/auth_widgets.dart';
+import '../widgets/carousel_section.dart';
 import '../widgets/coin_chip.dart';
 import '../widgets/game_tile.dart';
 import '../widgets/khelox_app_bar.dart';
@@ -110,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
         children: [
+          const CarouselSection(),
           _ZoneSwitch(index: _zone, onChanged: _setZone),
           const SizedBox(height: 22),
           GestureDetector(

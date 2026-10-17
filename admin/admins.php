@@ -1,7 +1,6 @@
 <?php
-$pageTitle = 'Admins';
-$active = 'admins';
-require __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/config.php';
+require_login();
 $pdo = db();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'toggle') {
@@ -16,6 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'toggl
     header('Location: admins.php');
     exit;
 }
+
+$pageTitle = 'Admins';
+$active = 'admins';
+require __DIR__ . '/includes/header.php';
 
 $admins = $pdo->query('SELECT id, name, username, email, phone, status, last_login FROM admins ORDER BY id')->fetchAll();
 ?>

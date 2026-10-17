@@ -1,7 +1,6 @@
 <?php
-$pageTitle = 'Manage Notifications';
-$active = 'notifications';
-require __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/config.php';
+require_login();
 $pdo = db();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -43,6 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+
+$pageTitle = 'Manage Notifications';
+$active = 'notifications';
+require __DIR__ . '/includes/header.php';
 
 $items = $pdo->query('SELECT id, title, message, status, created_at FROM notifications ORDER BY id DESC')->fetchAll();
 ?>

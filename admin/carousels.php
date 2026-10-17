@@ -1,7 +1,6 @@
 <?php
-$pageTitle = 'Manage Carousels';
-$active = 'carousels';
-require __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/config.php';
+require_login();
 $pdo = db();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -54,6 +53,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+
+$pageTitle = 'Manage Carousels';
+$active = 'carousels';
+require __DIR__ . '/includes/header.php';
 
 $items = $pdo->query('SELECT id, title, image, more_info_url, status, created_at FROM carousels ORDER BY sort_order ASC, id DESC')->fetchAll();
 ?>

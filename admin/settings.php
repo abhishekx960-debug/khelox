@@ -1,7 +1,6 @@
 <?php
-$pageTitle = 'Settings';
-$active = 'settings';
-require __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/config.php';
+require_login();
 $pdo = db();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -66,6 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+
+$pageTitle = 'Settings';
+$active = 'settings';
+require __DIR__ . '/includes/header.php';
 
 $qr = setting('deposit_qr');
 ?>
