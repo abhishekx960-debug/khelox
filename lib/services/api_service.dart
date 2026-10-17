@@ -79,6 +79,30 @@ class CarouselModel {
       );
 }
 
+class SupportModel {
+  final String email;
+  final String phone;
+  final String whatsapp;
+  final String telegram;
+  final String note;
+
+  const SupportModel({
+    this.email = '',
+    this.phone = '',
+    this.whatsapp = '',
+    this.telegram = '',
+    this.note = '',
+  });
+
+  factory SupportModel.fromJson(Map<String, dynamic> j) => SupportModel(
+        email: '${j['email'] ?? ''}'.trim(),
+        phone: '${j['phone'] ?? ''}'.trim(),
+        whatsapp: '${j['whatsapp'] ?? ''}'.trim(),
+        telegram: '${j['telegram'] ?? ''}'.trim(),
+        note: '${j['note'] ?? ''}'.trim(),
+      );
+}
+
 class ApiService {
   static Future<Map<String, dynamic>> _post(
     String endpoint,
@@ -149,6 +173,14 @@ class ApiService {
       for (final item in list)
         if (item is Map<String, dynamic>) CarouselModel.fromJson(item),
     ];
+  }
+
+  static Future<SupportModel> fetchSupport() async {
+    final data = await _post('support.php', const {});
+    final support = data['support'];
+    return support is Map<String, dynamic>
+        ? SupportModel.fromJson(support)
+        : const SupportModel();
   }
 }
 
