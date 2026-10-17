@@ -8,8 +8,18 @@ $nav = [
         'dashboard' => ['dashboard.php', 'bi-grid-1x2-fill', 'Dashboard'],
         'users'     => ['users.php',     'bi-people-fill',   'Users'],
     ],
-    'Manage' => [
-        'admins'    => ['admins.php',    'bi-shield-lock-fill', 'Admins'],
+    'Content' => [
+        'carousels'     => ['carousels.php',     'bi-images', 'Manage Carousels'],
+        'notifications' => ['notifications.php', 'bi-bell',   'Manage Notifications'],
+    ],
+    'Finance' => [
+        'fcoin_withdraws' => ['fcoin_withdraws.php', 'bi-coin',       'Manage Fcoin Withdraws'],
+        'deposits'        => ['deposits.php',        'bi-cash-stack', 'Manage Deposits'],
+        'wcoin_withdraws' => ['wcoin_withdraws.php', 'bi-wallet2',    'Manage Wcoin Withdraws'],
+    ],
+    'System' => [
+        'admins'   => ['admins.php',   'bi-shield-lock-fill', 'Admins'],
+        'settings' => ['settings.php', 'bi-gear',             'Settings'],
     ],
 ];
 function sidebar_html(array $nav, string $active): string {

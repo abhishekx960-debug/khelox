@@ -7,6 +7,9 @@ define('DB_PASS', '>w3IUDO#+47I');
 // Pehla admin bina key ke ban jayega. Uske baad naya admin banane ke liye ye key chahiye.
 define('ADMIN_INVITE_KEY', 'CHANGE_ME_TO_SOMETHING_LONG');
 
+// ImgBB image hosting - image upload ke liye use hoti hai.
+define('IMGBB_API_KEY', '66078ac1ded9c8184ec8c35bd8b9dc7a');
+
 $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
         || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
 session_name('KHELOXADMIN');
@@ -82,4 +85,97 @@ function initials(string $name): string {
     $a = mb_strtoupper(mb_substr($p[0] ?? '?', 0, 1));
     $b = isset($p[1]) ? mb_strtoupper(mb_substr($p[1], 0, 1)) : '';
     return $a . $b;
+}
+
+// ---- Uploads (ImgBB hosting) ----
+// Image validate karke ImgBB par upload karta hai aur public URL return karta hai.
+function save_image(array $file, string $sub = '', int $maxBytes = 3145728): string {
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('File upload fail hua, dobara try karo');
+    }
+    if (($file['size'] ?? 0) > $maxBytes) {
+        throw new RuntimeException('Image ' . round($maxBytes / 1048576, 1) . 'MB se choti honi chahiye');
+    }
+    $info = @getimagesize($file['tmp_name']);
+    if (!$info) {
+        throw new RuntimeException('Sahi image file chuno');
+    }
+    $allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!in_array($info['mime'] ?? '', $allowed, true)) {
+        throw new RuntimeException('Sirf JPG, PNG, WEBP ya GIF allowed hai');
+    }
+
+    $data = base64_encode((string)file_get_contents($file['tmp_name']));
+    $payload = http_build_query(['key' => IMGBB_API_KEY, 'image' => $data]);
+    $url = 'https://api.imgbb.com/1/upload';
+
+    $raw = false;
+    if (function_exists('curl_init')) {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 30,
+        ]);
+        $raw = curl_exec($ch);
+        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err  = curl_error($ch);
+        curl_close($ch);
+        if ($raw === false) {
+            throw new RuntimeException('ImgBB connect nahi hua: ' . $err);
+        }
+    } else {
+        $ctx = stream_context_create(['http' => [
+            'method'        => 'POST',
+            'header'        => "Content-Type: application/x-www-form-urlencoded\r\n",
+            'content'       => $payload,
+            'timeout'       => 30,
+            'ignore_errors' => true,
+        ]]);
+        $raw  = @file_get_contents($url, false, $ctx);
+        $code = 0;
+        if (isset($http_response_header[0]) && preg_match('~\s(\d{3})\s~', $http_response_header[0], $m)) {
+            $code = (int)$m[1];
+        }
+        if ($raw === false) {
+            throw new RuntimeException('ImgBB connect nahi hua');
+        }
+    }
+
+    $json = json_decode($raw, true);
+    if (!is_array($json) || empty($json['success']) || empty($json['data']['url'])) {
+        $msg = $json['error']['message'] ?? ('HTTP ' . $code);
+        throw new RuntimeException('ImgBB upload fail hua: ' . $msg);
+    }
+    return (string)$json['data']['url'];
+}
+
+// Sirf local uploads delete karta hai, remote (http) URLs ko chhod deta hai.
+function delete_upload(?string $relPath): void {
+    if (!$relPath || preg_match('~^https?://~i', $relPath)) return;
+    $path = __DIR__ . '/' . ltrim($relPath, '/');
+    if (is_file($path)) @unlink($path);
+}
+
+// ---- Settings (key/value) ----
+function settings_all(): array {
+    static $cache = null;
+    if ($cache === null) {
+        $cache = [];
+        foreach (db()->query('SELECT setting_key, setting_value FROM settings') as $r) {
+            $cache[$r['setting_key']] = $r['setting_value'];
+        }
+    }
+    return $cache;
+}
+
+function setting(string $key, string $default = ''): string {
+    return settings_all()[$key] ?? $default;
+}
+
+function setting_set(string $key, string $value): void {
+    db()->prepare('INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)
+                   ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)')
+        ->execute([$key, $value]);
 }
