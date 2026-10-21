@@ -51,7 +51,8 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         for (final w in withdrawals)
           _TxEntry(
             title: '${w.type == 'wcoin' ? 'Wcoin' : 'Fcoin'} withdraw',
-            subtitle: 'UPI ${w.upiId}',
+            subtitle: 'UPI ${w.upiId}'
+                '${w.status == TxStatus.rejected ? '  •  Amount refunded' : ''}',
             amount: '-${formatCoin(w.amount)} ${w.type == 'wcoin' ? 'Wcoin' : 'Fcoin'}',
             status: w.status,
             reason: w.remark,

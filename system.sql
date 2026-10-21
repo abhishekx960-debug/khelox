@@ -113,6 +113,7 @@ CREATE TABLE IF NOT EXISTS deposits (
 -- ---------------------------------------------------------------
 -- Manage Fcoin Withdraws
 -- status: 0 = pending, 1 = approved, 2 = rejected
+-- deducted: 1 = amount currently held from the user's balance
 -- ---------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS fcoin_withdraws (
   id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -121,6 +122,7 @@ CREATE TABLE IF NOT EXISTS fcoin_withdraws (
   upi_id     VARCHAR(120)  NULL,
   remark     VARCHAR(255)  NULL,
   status     TINYINT(1)    NOT NULL DEFAULT 0,
+  deducted   TINYINT(1)    NOT NULL DEFAULT 0,
   created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_fwithdraw_user (user_id),
   KEY idx_fwithdraw_status (status)
@@ -129,6 +131,7 @@ CREATE TABLE IF NOT EXISTS fcoin_withdraws (
 -- ---------------------------------------------------------------
 -- Manage Wcoin Withdraws
 -- status: 0 = pending, 1 = approved, 2 = rejected
+-- deducted: 1 = amount currently held from the user's balance
 -- ---------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS wcoin_withdraws (
   id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -137,6 +140,7 @@ CREATE TABLE IF NOT EXISTS wcoin_withdraws (
   upi_id     VARCHAR(120)  NULL,
   remark     VARCHAR(255)  NULL,
   status     TINYINT(1)    NOT NULL DEFAULT 0,
+  deducted   TINYINT(1)    NOT NULL DEFAULT 0,
   created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_wwithdraw_user (user_id),
   KEY idx_wwithdraw_status (status)

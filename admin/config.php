@@ -181,6 +181,30 @@ function setting_set(string $key, string $value): void {
 }
 
 /**
+ * Withdraw rows track whether the amount is currently deducted from the user.
+ * Old pending rows start at 0 and get deducted on their first approval.
+ */
+function withdraws_ensure_schema(): void {
+    static $done = false;
+    if ($done) return;
+    $done = true;
+
+    foreach (['fcoin_withdraws', 'wcoin_withdraws'] as $table) {
+        try {
+            $columns = [];
+            foreach (db()->query('SHOW COLUMNS FROM ' . $table) as $col) {
+                $columns[$col['Field']] = true;
+            }
+            if (!isset($columns['deducted'])) {
+                db()->exec('ALTER TABLE ' . $table . ' ADD COLUMN deducted TINYINT(1) NOT NULL DEFAULT 0 AFTER status');
+            }
+        } catch (PDOException $e) {
+            // Table missing: run system.sql first.
+        }
+    }
+}
+
+/**
  * Older installs have the deposits table without proof/rejection columns.
  * Add them on first use so existing databases keep working.
  */

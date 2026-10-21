@@ -149,7 +149,7 @@ class FinanceSettings {
 
 enum TxStatus {
   pending('Pending'),
-  approved('Approved'),
+  approved('Success'),
   rejected('Rejected');
 
   final String label;

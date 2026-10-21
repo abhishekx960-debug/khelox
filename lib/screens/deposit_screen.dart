@@ -308,7 +308,6 @@ class DepositPaymentScreen extends StatefulWidget {
 class _DepositPaymentScreenState extends State<DepositPaymentScreen> {
   final _formKey = GlobalKey<FormState>();
   final _utr = TextEditingController();
-  final _proofUrl = TextEditingController();
 
   PickedProofImage? _picked;
   bool _submitting = false;
@@ -316,7 +315,6 @@ class _DepositPaymentScreenState extends State<DepositPaymentScreen> {
   @override
   void dispose() {
     _utr.dispose();
-    _proofUrl.dispose();
     super.dispose();
   }
 
@@ -335,10 +333,7 @@ class _DepositPaymentScreenState extends State<DepositPaymentScreen> {
     }
   }
 
-  String get _proof {
-    if (kProofPickerSupported) return _picked?.dataUrl ?? '';
-    return _proofUrl.text.trim();
-  }
+  String get _proof => _picked?.dataUrl ?? '';
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -600,15 +595,14 @@ class _DepositPaymentScreenState extends State<DepositPaymentScreen> {
                 ),
               )
             else
-              TextFormField(
-                controller: _proofUrl,
-                keyboardType: TextInputType.url,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-                decoration: const InputDecoration(
-                  labelText: 'Payment proof image URL',
-                  hintText: 'https://...',
-                  prefixIcon: Icon(Icons.link_rounded),
-                  helperText: 'Upload the screenshot to ImgBB/Drive and paste the link here',
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: AppTheme.surfaceCard(
+                    border: AppColors.danger, radius: 14),
+                child: const Text(
+                  'Image upload is not supported on this device. '
+                  'Please use the mobile app or the web app to send the payment proof.',
+                  style: TextStyle(color: AppColors.danger, fontSize: 13),
                 ),
               ),
             const SizedBox(height: 18),

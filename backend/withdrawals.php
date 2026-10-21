@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/config.php';
+withdraws_ensure_schema();
 
 $in = json_input();
 $action = (string)($in['action'] ?? 'create');
@@ -74,33 +75,48 @@ try {
         respond(422, ['success' => false, 'message' => 'Enter a valid UPI ID']);
     }
 
-    $q = db()->prepare('SELECT ' . $type . ' AS balance FROM users WHERE id = ? LIMIT 1');
+    $pdo = db();
+    $pdo->beginTransaction();
+
+    $q = $pdo->prepare('SELECT ' . $type . ' AS balance FROM users WHERE id = ? FOR UPDATE');
     $q->execute([$userId]);
     $row = $q->fetch();
     if (!$row) {
+        $pdo->rollBack();
         respond(404, ['success' => false, 'message' => 'User not found']);
     }
     if ((float)$row['balance'] < $amount) {
+        $pdo->rollBack();
         respond(422, ['success' => false, 'message' => 'Insufficient balance']);
     }
 
-    $ins = db()->prepare(
-        'INSERT INTO ' . withdraw_table($type) . ' (user_id, amount, upi_id, remark, status) VALUES (?, ?, ?, NULL, 0)'
+    // Coins are held as soon as the request is created. Approval only updates
+    // the status; rejection or deleting a held request returns the coins.
+    $pdo->prepare('UPDATE users SET ' . $type . ' = ' . $type . ' - ? WHERE id = ?')
+        ->execute([$amount, $userId]);
+
+    $ins = $pdo->prepare(
+        'INSERT INTO ' . withdraw_table($type) . ' (user_id, amount, upi_id, remark, status, deducted) VALUES (?, ?, ?, NULL, 0, 1)'
     );
     $ins->execute([$userId, $amount, $upiId]);
-    $id = (int)db()->lastInsertId();
+    $id = (int)$pdo->lastInsertId();
 
-    $q = db()->prepare(
+    $q = $pdo->prepare(
         'SELECT id, amount, upi_id, status, remark, created_at
          FROM ' . withdraw_table($type) . ' WHERE id = ? LIMIT 1'
     );
     $q->execute([$id]);
+    $created = withdraw_payload($type, $q->fetch());
+    $pdo->commit();
 
     respond(200, [
         'success'     => true,
         'message'     => 'Withdrawal request sent',
-        'withdrawal'  => withdraw_payload($type, $q->fetch()),
+        'withdrawal'  => $created,
     ]);
 } catch (PDOException $e) {
+    if (isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     respond(500, ['success' => false, 'message' => 'Server error']);
 }

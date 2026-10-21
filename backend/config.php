@@ -120,6 +120,31 @@ function deposits_ensure_schema(): void {
 }
 
 /**
+ * Withdraw requests now hold the coins as soon as they are created, so each
+ * row needs to track whether the amount is currently deducted from the user.
+ * Old pending rows keep deducted = 0 and are deducted when first approved.
+ */
+function withdraws_ensure_schema(): void {
+    static $done = false;
+    if ($done) return;
+    $done = true;
+
+    foreach (['fcoin_withdraws', 'wcoin_withdraws'] as $table) {
+        try {
+            $columns = [];
+            foreach (db()->query('SHOW COLUMNS FROM ' . $table) as $col) {
+                $columns[$col['Field']] = true;
+            }
+            if (!isset($columns['deducted'])) {
+                db()->exec('ALTER TABLE ' . $table . ' ADD COLUMN deducted TINYINT(1) NOT NULL DEFAULT 0 AFTER status');
+            }
+        } catch (PDOException $e) {
+            // Table may not exist yet; system.sql creates it.
+        }
+    }
+}
+
+/**
  * Uploads a base64 data-URL image to ImgBB and returns the public URL.
  */
 function upload_data_image(string $dataUrl): string {

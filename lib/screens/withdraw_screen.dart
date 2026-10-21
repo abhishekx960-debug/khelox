@@ -107,6 +107,9 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
         amount: double.parse(_amount.text.trim()),
         upiId: _upi.text,
       );
+      // Coins are held as soon as the request is created, so refresh the
+      // displayed balance immediately instead of waiting for the next poll.
+      await UserStore.instance.refresh();
       if (!mounted) return;
       await showDialog<void>(
         context: context,
@@ -307,8 +310,8 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
           ),
           const SizedBox(height: 10),
           const Text(
-            'Payment will be made after the withdrawal is approved. If rejected, '
-            'the reason will be shown in Transaction History.',
+            'Coins are deducted as soon as you submit. If rejected, the amount '
+            'is refunded and the reason is shown in Transaction History.',
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.mist, fontSize: 12),
           ),

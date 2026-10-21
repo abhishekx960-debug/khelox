@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config.php';
 require_login();
+withdraws_ensure_schema();
 
 $type = $type ?? 'fcoin';
 $table = $type === 'wcoin' ? 'wcoin_withdraws' : 'fcoin_withdraws';
@@ -20,60 +21,124 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $st->execute([$id]);
                 $row = $st->fetch();
 
+                $error = '';
                 if (!$row) {
-                    $pdo->rollBack();
-                    flash('danger', 'Withdrawal request not found');
+                    $error = 'Withdrawal request not found';
                 } elseif ((int)$row['status'] === 1) {
-                    $pdo->rollBack();
-                    flash('danger', 'This request has already been approved');
+                    $error = 'This request has already been approved';
                 } else {
-                    $bal = $pdo->prepare("SELECT $type AS balance FROM users WHERE id = ? FOR UPDATE");
-                    $bal->execute([(int)$row['user_id']]);
-                    $user = $bal->fetch();
                     $amount = (float)$row['amount'];
+                    $userId = (int)$row['user_id'];
+                    $held = (int)($row['deducted'] ?? 0) === 1;
 
-                    if (!$user) {
-                        $pdo->rollBack();
-                        flash('danger', 'User not found');
-                    } elseif ((float)$user['balance'] < $amount) {
-                        $pdo->rollBack();
-                        flash('danger', 'User has insufficient balance (' . $amount . ' ' . $coinLabel . ' required)');
-                    } else {
+                    if (!$held) {
+                        // Legacy request created before coins were held upfront.
+                        $bal = $pdo->prepare("SELECT $type AS balance FROM users WHERE id = ? FOR UPDATE");
+                        $bal->execute([$userId]);
+                        $user = $bal->fetch();
+
+                        if (!$user) {
+                            $error = 'User not found';
+                        } elseif ((float)$user['balance'] < $amount) {
+                            $error = 'User has insufficient balance (' . $amount . ' ' . $coinLabel . ' required)';
+                        } else {
+                            $pdo->prepare("UPDATE users SET $type = $type - ? WHERE id = ?")
+                                ->execute([$amount, $userId]);
+                            $pdo->prepare("UPDATE $table SET deducted = 1 WHERE id = ?")->execute([$id]);
+                        }
+                    }
+
+                    if ($error === '') {
                         $pdo->prepare("UPDATE $table SET status = 1, remark = NULL WHERE id = ?")->execute([$id]);
-                        $pdo->prepare("UPDATE users SET $type = $type - ? WHERE id = ?")
-                            ->execute([$amount, (int)$row['user_id']]);
                         $pdo->commit();
-                        flash('success', $amount . ' ' . $coinLabel . ' deducted, withdrawal approved');
+                        flash('success', 'Withdrawal approved, ' . $amount . ' ' . $coinLabel . ' paid out');
                     }
                 }
+
+                if ($error !== '') {
+                    $pdo->rollBack();
+                    flash('danger', $error);
+                }
             } elseif ($action === 'pending') {
-                $st = $pdo->prepare("SELECT status FROM $table WHERE id = ? LIMIT 1");
+                $pdo->beginTransaction();
+                $st = $pdo->prepare("SELECT * FROM $table WHERE id = ? FOR UPDATE");
                 $st->execute([$id]);
                 $row = $st->fetch();
+
+                $error = '';
                 if (!$row) {
-                    flash('danger', 'Withdrawal request not found');
+                    $error = 'Withdrawal request not found';
                 } elseif ((int)$row['status'] === 1) {
-                    flash('danger', 'An approved withdrawal cannot be set to pending');
+                    $error = 'An approved withdrawal cannot be set to pending';
                 } else {
-                    $pdo->prepare("UPDATE $table SET status = 0, remark = NULL WHERE id = ?")->execute([$id]);
-                    flash('success', 'Withdrawal marked as pending');
+                    $amount = (float)$row['amount'];
+                    $userId = (int)$row['user_id'];
+                    $held = (int)($row['deducted'] ?? 0) === 1;
+
+                    // Moving a refunded request back to pending holds the coins again.
+                    if (!$held) {
+                        $bal = $pdo->prepare("SELECT $type AS balance FROM users WHERE id = ? FOR UPDATE");
+                        $bal->execute([$userId]);
+                        $user = $bal->fetch();
+
+                        if (!$user) {
+                            $error = 'User not found';
+                        } elseif ((float)$user['balance'] < $amount) {
+                            $error = 'User has insufficient balance (' . $amount . ' ' . $coinLabel . ' required)';
+                        } else {
+                            $pdo->prepare("UPDATE users SET $type = $type - ? WHERE id = ?")
+                                ->execute([$amount, $userId]);
+                            $pdo->prepare("UPDATE $table SET deducted = 1 WHERE id = ?")->execute([$id]);
+                        }
+                    }
+
+                    if ($error === '') {
+                        $pdo->prepare("UPDATE $table SET status = 0, remark = NULL WHERE id = ?")->execute([$id]);
+                        $pdo->commit();
+                        flash('success', 'Withdrawal marked as pending');
+                    }
+                }
+
+                if ($error !== '') {
+                    $pdo->rollBack();
+                    flash('danger', $error);
                 }
             } elseif ($action === 'reject') {
                 $reason = trim((string)($_POST['reason'] ?? ''));
-                $st = $pdo->prepare("SELECT status FROM $table WHERE id = ? LIMIT 1");
+                $pdo->beginTransaction();
+                $st = $pdo->prepare("SELECT * FROM $table WHERE id = ? FOR UPDATE");
                 $st->execute([$id]);
                 $row = $st->fetch();
 
+                $error = '';
                 if (!$row) {
-                    flash('danger', 'Withdrawal request not found');
+                    $error = 'Withdrawal request not found';
                 } elseif ((int)$row['status'] === 1) {
-                    flash('danger', 'An approved withdrawal cannot be rejected');
+                    $error = 'An approved withdrawal cannot be rejected';
                 } elseif ($reason === '' || mb_strlen($reason) > 255) {
-                    flash('danger', 'Enter a rejection reason (max 255 characters)');
+                    $error = 'Enter a rejection reason (max 255 characters)';
                 } else {
+                    $amount = (float)$row['amount'];
+                    $userId = (int)$row['user_id'];
+                    $held = (int)($row['deducted'] ?? 0) === 1;
+
+                    if ($held) {
+                        $pdo->prepare("UPDATE users SET $type = $type + ? WHERE id = ?")
+                            ->execute([$amount, $userId]);
+                        $pdo->prepare("UPDATE $table SET deducted = 0 WHERE id = ?")->execute([$id]);
+                    }
+
                     $pdo->prepare("UPDATE $table SET status = 2, remark = ? WHERE id = ?")
                         ->execute([$reason, $id]);
-                    flash('success', 'Withdrawal rejected');
+                    $pdo->commit();
+                    flash('success', $held
+                        ? 'Withdrawal rejected and ' . $amount . ' ' . $coinLabel . ' refunded'
+                        : 'Withdrawal rejected, no refund was needed');
+                }
+
+                if ($error !== '') {
+                    $pdo->rollBack();
+                    flash('danger', $error);
                 }
             } elseif ($action === 'delete') {
                 $pdo->beginTransaction();
@@ -85,13 +150,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pdo->rollBack();
                     flash('danger', 'Withdrawal request not found');
                 } else {
-                    if ((int)$row['status'] === 1) {
+                    $amount = (float)$row['amount'];
+                    $userId = (int)$row['user_id'];
+                    $held = (int)($row['deducted'] ?? 0) === 1;
+                    $refund = $held && (int)$row['status'] !== 1;
+
+                    // A paid (approved) request must not refund on cleanup, but a
+                    // pending request still holds the user's coins.
+                    if ($refund) {
                         $pdo->prepare("UPDATE users SET $type = $type + ? WHERE id = ?")
-                            ->execute([(float)$row['amount'], (int)$row['user_id']]);
+                            ->execute([$amount, $userId]);
                     }
                     $pdo->prepare("DELETE FROM $table WHERE id = ?")->execute([$id]);
                     $pdo->commit();
-                    flash('success', 'Withdrawal deleted and removed from the user side');
+                    flash('success', $refund
+                        ? 'Withdrawal deleted and ' . $amount . ' ' . $coinLabel . ' refunded'
+                        : 'Withdrawal deleted and removed from the user side');
                 }
             }
         } catch (PDOException $e) {
@@ -198,7 +272,7 @@ $max = (float)setting($type . '_max_withdraw', '0');
                                 <input type="hidden" name="action" value="approve">
                                 <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
                                 <input type="hidden" name="return_status" value="<?= e($status) ?>">
-                                <button class="btn btn-sm btn-success" title="Approve & deduct coins"><i class="bi bi-check-lg"></i></button>
+                                <button class="btn btn-sm btn-success" title="Approve withdrawal"><i class="bi bi-check-lg"></i></button>
                             </form>
                         <?php endif; ?>
                         <?php if ($stInt !== 0): ?>
