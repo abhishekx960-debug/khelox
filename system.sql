@@ -51,6 +51,8 @@ INSERT IGNORE INTO settings (setting_key, setting_value) VALUES
   ('dcoin_min_deposit', '10'),
   ('dcoin_max_deposit', '100000'),
   ('fcoin_inr_rate', '0.50'),
+  ('fcoin_rate_coins', '1'),
+  ('fcoin_rate_inr', '0.50'),
   ('fcoin_min_withdraw', '100'),
   ('fcoin_max_withdraw', '100000'),
   ('wcoin_min_withdraw', '100'),

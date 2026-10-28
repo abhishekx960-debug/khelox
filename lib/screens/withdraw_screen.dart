@@ -80,11 +80,28 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
 
   double get _balance => _isWcoin ? widget.user.wcoin : widget.user.fcoin;
 
+  double get _fcoinRate {
+    final s = _settings;
+    if (s == null) return 0;
+    if (s.fcoinRateCoins > 0 && s.fcoinRateInr > 0) {
+      return s.fcoinRateInr / s.fcoinRateCoins;
+    }
+    return s.fcoinInrRate;
+  }
+
+  String get _rateLabel {
+    final s = _settings;
+    if (s == null) return '';
+    if (s.fcoinRateCoins > 0 && s.fcoinRateInr > 0) {
+      return '${formatCoin(s.fcoinRateCoins)} Fcoin = INR ${formatCoin(s.fcoinRateInr)}';
+    }
+    return '1 Fcoin = INR ${formatCoin(s.fcoinInrRate)}';
+  }
+
   double get _inrValue {
     if (_isWcoin) return 0;
-    final rate = _settings?.fcoinInrRate ?? 0;
     final amount = double.tryParse(_amount.text.trim()) ?? 0;
-    return amount * rate;
+    return amount * _fcoinRate;
   }
 
   String? _validateAmount(String? v) {
@@ -258,7 +275,57 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 16),
+          if (!_isWcoin) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: AppTheme.surfaceCard(border: AppColors.line, radius: 16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.gold.withValues(alpha: 0.15),
+                    ),
+                    child: const Icon(Icons.currency_exchange_rounded,
+                        color: AppColors.gold),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'CURRENT RATE',
+                          style: TextStyle(
+                            color: AppColors.mist,
+                            fontSize: 11.5,
+                            letterSpacing: 1.2,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _rateLabel,
+                          style: const TextStyle(
+                            fontFamily: AppFonts.heading,
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 22),
+          ] else
+            const SizedBox(height: 22),
           TextFormField(
             controller: _amount,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -280,10 +347,37 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
             ),
             validator: _validateAmount,
           ),
+          if (!_isWcoin) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: AppTheme.surfaceCard(border: AppColors.line, radius: 16),
+              child: Row(
+                children: [
+                  const Icon(Icons.arrow_forward_rounded,
+                      size: 18, color: AppColors.mist),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'You will get',
+                    style: TextStyle(color: AppColors.mist, fontSize: 13.5),
+                  ),
+                  const Spacer(),
+                  Text(
+                    'INR ${formatCoin(_inrValue)}',
+                    style: const TextStyle(
+                      fontFamily: AppFonts.heading,
+                      color: AppColors.gold,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           Text(
-            'Minimum: ${formatCoin(_min)}  •  Maximum: ${formatCoin(_max)}'
-            '${!_isWcoin && _inrValue > 0 ? '  •  ≈ INR ${formatCoin(_inrValue)}' : ''}',
+            'Minimum: ${formatCoin(_min)}  •  Maximum: ${formatCoin(_max)}',
             style: const TextStyle(color: AppColors.mist, fontSize: 12.5),
           ),
           const SizedBox(height: 20),

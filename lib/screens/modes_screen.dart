@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../widgets/auth_widgets.dart';
 import '../widgets/game_tile.dart';
 import '../widgets/khelox_app_bar.dart';
+import 'premiumzone/freefire/free_fire_tournaments_screen.dart';
 
 /// Modes = PREMIUM ZONE
 class ModesScreen extends StatelessWidget {
@@ -41,7 +42,17 @@ class ModesScreen extends StatelessWidget {
                   title: g.$1,
                   icon: g.$2,
                   color: g.$3,
-                  onTap: () => showMsg(context, '${g.$1} - coming soon'),
+                  onTap: () {
+                    if (g.$1 == 'Free Fire') {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const FreeFireTournamentsScreen(),
+                        ),
+                      );
+                    } else {
+                      showMsg(context, '${g.$1} - coming soon');
+                    }
+                  },
                 ),
             ],
           ),

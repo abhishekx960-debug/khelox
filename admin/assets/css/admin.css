@@ -76,3 +76,10 @@ a{color:var(--brand)}
 .auth-box h1{font-size:1.5rem;font-weight:700}
 .auth-logo-m{display:none}
 @media(max-width:991.98px){.auth{grid-template-columns:1fr}.auth-brand{display:none}.auth-logo-m{display:flex;margin-bottom:1.5rem;align-items:center;gap:.6rem;color:var(--brand);font-weight:700}.auth-form{background:var(--bg)}.auth-box{background:#fff;padding:1.75rem;border-radius:1rem;border:1px solid var(--line)}}
+/* Games submenu */
+.side-sub{list-style:none;margin:.1rem 0 .3rem;padding:0 0 0 1.1rem;border-left:1px solid rgba(255,255,255,.12);margin-left:1.35rem}
+.side-nav .side-sub a{padding:.5rem .75rem;font-size:.9rem}
+.side-nav a .chev{font-size:.8rem;transition:.2s}
+.side-nav a[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.badge-soft-primary{background:#e9e9fb;color:#4646b8}
+.rule-point-row .input-group-text{min-width:5.2rem;justify-content:center;font-weight:600}

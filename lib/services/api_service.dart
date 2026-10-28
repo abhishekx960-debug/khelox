@@ -108,6 +108,8 @@ class FinanceSettings {
   final double dcoinMinDeposit;
   final double dcoinMaxDeposit;
   final double fcoinInrRate;
+  final double fcoinRateCoins;
+  final double fcoinRateInr;
   final double fcoinMinWithdraw;
   final double fcoinMaxWithdraw;
   final double wcoinMinWithdraw;
@@ -120,6 +122,8 @@ class FinanceSettings {
     this.dcoinMinDeposit = 10,
     this.dcoinMaxDeposit = 100000,
     this.fcoinInrRate = 0.5,
+    this.fcoinRateCoins = 1,
+    this.fcoinRateInr = 0.5,
     this.fcoinMinWithdraw = 100,
     this.fcoinMaxWithdraw = 100000,
     this.wcoinMinWithdraw = 100,
@@ -138,6 +142,8 @@ class FinanceSettings {
         dcoinMinDeposit: _d(j['dcoin_min_deposit'], 10),
         dcoinMaxDeposit: _d(j['dcoin_max_deposit'], 100000),
         fcoinInrRate: _d(j['fcoin_inr_rate'], 0.5),
+        fcoinRateCoins: _d(j['fcoin_rate_coins'], 1),
+        fcoinRateInr: _d(j['fcoin_rate_inr'], 0.5),
         fcoinMinWithdraw: _d(j['fcoin_min_withdraw'], 100),
         fcoinMaxWithdraw: _d(j['fcoin_max_withdraw'], 100000),
         wcoinMinWithdraw: _d(j['wcoin_min_withdraw'], 100),
@@ -229,6 +235,48 @@ class WithdrawalModel {
       );
 }
 
+class TournamentModel {
+  final int id;
+  final String title;
+  final double prizePool;
+  final double entryFee;
+  final int slots;
+  final DateTime? startAt;
+  final String description;
+  final String status; // upcoming | ongoing | results
+  final int? ruleId;
+  final List<String> rules;
+
+  const TournamentModel({
+    required this.id,
+    required this.title,
+    required this.prizePool,
+    required this.entryFee,
+    required this.slots,
+    required this.startAt,
+    required this.description,
+    required this.status,
+    required this.ruleId,
+    required this.rules,
+  });
+
+  factory TournamentModel.fromJson(Map<String, dynamic> j) => TournamentModel(
+        id: int.tryParse('${j['id'] ?? 0}') ?? 0,
+        title: '${j['title'] ?? ''}',
+        prizePool: double.tryParse('${j['prize_pool'] ?? 0}') ?? 0,
+        entryFee: double.tryParse('${j['entry_fee'] ?? 0}') ?? 0,
+        slots: int.tryParse('${j['slots'] ?? 0}') ?? 0,
+        startAt: DateTime.tryParse('${j['start_at'] ?? ''}'.replaceFirst(' ', 'T')),
+        description: '${j['description'] ?? ''}',
+        status: '${j['status'] ?? 'upcoming'}',
+        ruleId: int.tryParse('${j['rule_id'] ?? ''}'),
+        rules: [
+          if (j['rules'] is List)
+            for (final r in j['rules'] as List) '$r',
+        ],
+      );
+}
+
 class ApiService {
   static Future<Map<String, dynamic>> _post(
     String endpoint,
@@ -298,6 +346,16 @@ class ApiService {
     return [
       for (final item in list)
         if (item is Map<String, dynamic>) CarouselModel.fromJson(item),
+    ];
+  }
+
+  static Future<List<TournamentModel>> fetchTournaments(String game) async {
+    final data = await _post('tournaments.php', {'game': game});
+    final list = data['tournaments'];
+    if (list is! List) return const [];
+    return [
+      for (final item in list)
+        if (item is Map<String, dynamic>) TournamentModel.fromJson(item),
     ];
   }
 

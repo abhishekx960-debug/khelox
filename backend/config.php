@@ -196,3 +196,38 @@ function upload_data_image(string $dataUrl): string {
     }
     return (string)$json['data']['url'];
 }
+
+/**
+ * Tournaments + rules tables are shared with the admin panel. Created on
+ * first use so the live database needs no manual SQL.
+ */
+function games_ensure_schema(): void {
+    static $done = false;
+    if ($done) return;
+    $done = true;
+
+    try {
+        db()->exec('CREATE TABLE IF NOT EXISTS game_rules (
+            id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            points MEDIUMTEXT NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+
+        db()->exec('CREATE TABLE IF NOT EXISTS tournaments (
+            id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            game VARCHAR(20) NOT NULL,
+            title VARCHAR(150) NOT NULL,
+            prize_pool DECIMAL(12,2) NOT NULL DEFAULT 0,
+            entry_fee DECIMAL(12,2) NOT NULL DEFAULT 0,
+            slots INT UNSIGNED NOT NULL DEFAULT 0,
+            start_at DATETIME NOT NULL,
+            rule_id INT UNSIGNED NULL,
+            description TEXT NULL,
+            status VARCHAR(10) NOT NULL DEFAULT \'upcoming\',
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            KEY idx_game_status (game, status)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+    } catch (PDOException $e) {
+        // Ignore: listing below will report a server error if still missing.
+    }
+}

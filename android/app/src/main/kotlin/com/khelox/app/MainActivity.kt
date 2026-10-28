@@ -1,4 +1,4 @@
-package com.example.khelox
+package com.khelox.app
 
 import io.flutter.embedding.android.FlutterActivity
 

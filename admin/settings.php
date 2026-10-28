@@ -43,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'dcoin_inr_rate'     => $_POST['dcoin_inr_rate'] ?? '',
             'dcoin_min_deposit'  => $_POST['dcoin_min_deposit'] ?? '',
             'dcoin_max_deposit'  => $_POST['dcoin_max_deposit'] ?? '',
-            'fcoin_inr_rate'     => $_POST['fcoin_inr_rate'] ?? '',
             'fcoin_min_withdraw' => $_POST['fcoin_min_withdraw'] ?? '',
             'fcoin_max_withdraw' => $_POST['fcoin_max_withdraw'] ?? '',
             'wcoin_min_withdraw' => $_POST['wcoin_min_withdraw'] ?? '',
@@ -63,8 +62,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!isset($clean['dcoin_inr_rate']) || (float)$clean['dcoin_inr_rate'] <= 0) {
             $errors[] = '1 Dcoin rate must be greater than 0';
         }
-        if (!isset($clean['fcoin_inr_rate']) || (float)$clean['fcoin_inr_rate'] <= 0) {
-            $errors[] = '1 Fcoin rate must be greater than 0';
+
+        $fcoinCoinsRaw = trim((string)($_POST['fcoin_rate_coins'] ?? ''));
+        $fcoinInrRaw   = trim((string)($_POST['fcoin_rate_inr'] ?? ''));
+        $fcoinCoins = null;
+        $fcoinInr = null;
+        if ($fcoinCoinsRaw === '' || !is_numeric($fcoinCoinsRaw) || (float)$fcoinCoinsRaw <= 0 || (float)$fcoinCoinsRaw > 9999999999) {
+            $errors[] = 'Fcoin amount in the conversion must be greater than 0';
+        } else {
+            $fcoinCoins = round((float)$fcoinCoinsRaw, 2);
+        }
+        if ($fcoinInrRaw === '' || !is_numeric($fcoinInrRaw) || (float)$fcoinInrRaw <= 0 || (float)$fcoinInrRaw > 9999999999) {
+            $errors[] = 'INR amount in the Fcoin conversion must be greater than 0';
+        } else {
+            $fcoinInr = round((float)$fcoinInrRaw, 2);
         }
         if (isset($clean['dcoin_min_deposit'], $clean['dcoin_max_deposit'])
             && (float)$clean['dcoin_max_deposit'] < (float)$clean['dcoin_min_deposit']) {
@@ -83,6 +94,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flash('danger', implode(' | ', $errors));
         } else {
             foreach ($clean as $key => $value) setting_set($key, $value);
+            setting_set('fcoin_rate_coins', (string)$fcoinCoins);
+            setting_set('fcoin_rate_inr', (string)$fcoinInr);
+            setting_set('fcoin_inr_rate', (string)round($fcoinInr / $fcoinCoins, 8));
             flash('success', 'Coin rates and limits saved');
         }
         header('Location: settings.php');
@@ -239,9 +253,25 @@ $qr = setting('deposit_qr');
                 <div class="col-lg-6">
                     <div class="p-3 rounded border h-100">
                         <h3 class="h6 fw-bold mb-3"><i class="bi bi-coin me-1 text-warning"></i>Fcoin (Withdraw)</h3>
+                        <?php
+                        $fcoinRateCoins = setting('fcoin_rate_coins');
+                        $fcoinRateInr = setting('fcoin_rate_inr');
+                        if ($fcoinRateCoins === '' || (float)$fcoinRateCoins <= 0) {
+                            $fcoinRateCoins = '1';
+                        }
+                        if ($fcoinRateInr === '' || (float)$fcoinRateInr <= 0) {
+                            $fcoinRateInr = setting('fcoin_inr_rate', '0.50');
+                        }
+                        ?>
                         <div class="mb-3">
-                            <label class="form-label">1 Fcoin = ? INR</label>
-                            <input type="number" step="0.01" min="0.01" name="fcoin_inr_rate" class="form-control" value="<?= e(setting('fcoin_inr_rate', '0.50')) ?>" required>
+                            <label class="form-label">Fcoin = INR conversion</label>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <input type="number" step="0.01" min="0.01" name="fcoin_rate_coins" id="fcoinRateCoins" class="form-control" style="max-width:140px" value="<?= e($fcoinRateCoins) ?>" required>
+                                <span class="fw-semibold text-nowrap">Fcoin =</span>
+                                <input type="number" step="0.01" min="0.01" name="fcoin_rate_inr" id="fcoinRateInr" class="form-control" style="max-width:140px" value="<?= e($fcoinRateInr) ?>" required>
+                                <span class="fw-semibold">INR</span>
+                            </div>
+                            <div class="form-text" id="fcoinRatePreview">Set any formula, e.g. 100 Fcoin = 50 INR or 1 Fcoin = 0.50 INR.</div>
                         </div>
                         <div class="row g-3">
                             <div class="col-sm-6">
@@ -275,4 +305,25 @@ $qr = setting('deposit_qr');
         </form>
     </div>
 </div>
+<script>
+(function () {
+    const coins = document.getElementById('fcoinRateCoins');
+    const inr = document.getElementById('fcoinRateInr');
+    const preview = document.getElementById('fcoinRatePreview');
+    if (!coins || !inr || !preview) return;
+    function updatePreview() {
+        const c = parseFloat(coins.value);
+        const r = parseFloat(inr.value);
+        if (!c || !r || c <= 0 || r <= 0) {
+            preview.textContent = 'Set any formula, e.g. 100 Fcoin = 50 INR or 1 Fcoin = 0.50 INR.';
+            return;
+        }
+        const per = r / c;
+        preview.textContent = c + ' Fcoin = ' + r + ' INR  (1 Fcoin = ' + per.toFixed(8).replace(/0+$/, '').replace(/\.$/, '') + ' INR)';
+    }
+    coins.addEventListener('input', updatePreview);
+    inr.addEventListener('input', updatePreview);
+    updatePreview();
+})();
+</script>
 <?php require __DIR__ . '/includes/footer.php'; ?>

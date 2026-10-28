@@ -22,13 +22,36 @@ $nav = [
         'settings' => ['settings.php', 'bi-gear',             'Settings'],
     ],
 ];
+$gamesNav = [
+    'games_br'        => ['game_tournaments.php?game=br',        'bi-fire',      'Free Fire BR'],
+    'games_cs'        => ['game_tournaments.php?game=cs',        'bi-shield-fill', 'Free Fire CS'],
+    'games_community' => ['game_tournaments.php?game=community', 'bi-people',    'Free Fire Community'],
+    'games_rules'     => ['game_rules.php',                      'bi-list-check', 'Rules'],
+];
 function sidebar_html(array $nav, string $active): string {
+    global $gamesNav;
+    static $n = 0;
+    $n++;
+    $gamesOpen = strpos($active, 'games_') === 0;
     ob_start(); ?>
     <div class="d-flex flex-column h-100">
         <a href="dashboard.php" class="brand">
             <span class="brand-logo"><?= logo_img(26) ?></span>
             <span class="brand-text"><b>Khelox</b><small>Admin Panel</small></span>
         </a>
+        <ul class="side-nav mt-2">
+            <li>
+                <a href="#gamesMenu<?= $n ?>" data-bs-toggle="collapse" role="button"
+                   class="<?= $gamesOpen ? 'active' : '' ?>" aria-expanded="<?= $gamesOpen ? 'true' : 'false' ?>">
+                    <i class="bi bi-controller"></i>Games<i class="bi bi-chevron-down ms-auto chev"></i>
+                </a>
+                <ul class="side-sub collapse <?= $gamesOpen ? 'show' : '' ?>" id="gamesMenu<?= $n ?>">
+                    <?php foreach ($gamesNav as $key => [$href, $icon, $label]): ?>
+                        <li><a href="<?= $href ?>" class="<?= $active === $key ? 'active' : '' ?>"><i class="bi <?= $icon ?>"></i><?= $label ?></a></li>
+                    <?php endforeach; ?>
+                </ul>
+            </li>
+        </ul>
         <?php foreach ($nav as $group => $items): ?>
             <div class="nav-label"><?= e($group) ?></div>
             <ul class="side-nav">

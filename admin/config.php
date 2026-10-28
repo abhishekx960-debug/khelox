@@ -243,3 +243,38 @@ function deposits_ensure_schema(): void {
         // Table missing: run system.sql first.
     }
 }
+
+// ---- Games / Tournaments / Rules ----
+const GAME_MODES = [
+    'br'        => 'Free Fire BR',
+    'cs'        => 'Free Fire CS',
+    'community' => 'Free Fire Community',
+];
+
+/** Creates tournaments + game_rules tables on first use (no manual SQL needed). */
+function games_ensure_schema(): void {
+    static $done = false;
+    if ($done) return;
+    $done = true;
+
+    db()->exec('CREATE TABLE IF NOT EXISTS game_rules (
+        id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        points MEDIUMTEXT NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+
+    db()->exec('CREATE TABLE IF NOT EXISTS tournaments (
+        id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        game VARCHAR(20) NOT NULL,
+        title VARCHAR(150) NOT NULL,
+        prize_pool DECIMAL(12,2) NOT NULL DEFAULT 0,
+        entry_fee DECIMAL(12,2) NOT NULL DEFAULT 0,
+        slots INT UNSIGNED NOT NULL DEFAULT 0,
+        start_at DATETIME NOT NULL,
+        rule_id INT UNSIGNED NULL,
+        description TEXT NULL,
+        status VARCHAR(10) NOT NULL DEFAULT \'upcoming\',
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        KEY idx_game_status (game, status)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+}
