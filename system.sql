@@ -149,6 +149,35 @@ CREATE TABLE IF NOT EXISTS wcoin_withdraws (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ---------------------------------------------------------------
+-- Premium Zone: Game Rules (Free Fire rule sets, points stored as JSON)
+-- ---------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS game_rules (
+  id         INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  points     MEDIUMTEXT   NOT NULL,
+  created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ---------------------------------------------------------------
+-- Premium Zone: Tournaments
+-- game: 'br' = Free Fire BR, 'cs' = Free Fire CS, 'community' = Free Fire Community
+-- status: upcoming / live / completed / cancelled (admin panel decides)
+-- ---------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS tournaments (
+  id          INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  game        VARCHAR(20)   NOT NULL,
+  title       VARCHAR(150)  NOT NULL,
+  prize_pool  DECIMAL(12,2) NOT NULL DEFAULT 0,
+  entry_fee   DECIMAL(12,2) NOT NULL DEFAULT 0,
+  slots       INT UNSIGNED  NOT NULL DEFAULT 0,
+  start_at    DATETIME      NOT NULL,
+  rule_id     INT UNSIGNED  NULL,
+  description TEXT          NULL,
+  status      VARCHAR(10)   NOT NULL DEFAULT 'upcoming',
+  created_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_game_status (game, status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ---------------------------------------------------------------
 -- Old installs only: if the deposits table already existed without
 -- these columns, the admin panel/API adds them automatically on first
 -- use. If you prefer running them manually, execute these one time:

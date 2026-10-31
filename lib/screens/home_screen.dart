@@ -8,6 +8,7 @@ import '../widgets/game_tile.dart';
 import '../widgets/khelox_app_bar.dart';
 import 'captcha_screen.dart';
 import 'daily_checkin_screen.dart';
+import 'premiumzone/freefire/free_fire_tournaments_screen.dart';
 import 'scratch_card_screen.dart';
 import 'spin_wheel_screen.dart';
 import 'surveys_screen.dart';
@@ -39,6 +40,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _setZone(int i) {
     if (i != _zone) setState(() => _zone = i);
+  }
+
+  Widget? _premiumScreen(int i) {
+    switch (_premiumGames[i].$1) {
+      case 'Free Fire':
+        return const FreeFireTournamentsScreen();
+    }
+    return null; // BGMI etc. - coming soon
   }
 
   Widget? _freeScreen(int i) {
@@ -77,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: games[i].$2,
               color: games[i].$3,
               onTap: () {
-                final screen = premium ? null : _freeScreen(i);
+                final screen = premium ? _premiumScreen(i) : _freeScreen(i);
                 if (screen == null) {
                   showMsg(context, '${games[i].$1} - coming soon');
                 } else {
