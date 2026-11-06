@@ -5,7 +5,7 @@ define('DB_USER', 'u758638448_khelox');
 define('DB_PASS', '>w3IUDO#+47I');
 
 // Pehla admin bina key ke ban jayega. Uske baad naya admin banane ke liye ye key chahiye.
-define('ADMIN_INVITE_KEY', 'CHANGE_ME_TO_SOMETHING_LONG');
+define('ADMIN_INVITE_KEY', 'admin_reset@3210');
 
 // ImgBB image hosting - image upload ke liye use hoti hai.
 define('IMGBB_API_KEY', '66078ac1ded9c8184ec8c35bd8b9dc7a');

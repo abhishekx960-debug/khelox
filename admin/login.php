@@ -42,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$hasAdmin = (int)db()->query('SELECT COUNT(*) FROM admins')->fetchColumn() > 0;
 $authTitle = 'Welcome back';
 $authSub   = 'Sign in to your admin account';
 require __DIR__ . '/includes/auth_top.php';
@@ -68,7 +67,6 @@ require __DIR__ . '/includes/auth_top.php';
     <button class="btn btn-primary w-100 py-2">Login <i class="bi bi-arrow-right ms-1"></i></button>
 </form>
 <p class="text-center text-muted small mt-4 mb-0">
-    <?= $hasAdmin ? 'Need a new admin?' : 'No admin exists yet.' ?>
-    <a href="register.php" class="fw-semibold text-decoration-none"><?= $hasAdmin ? 'Register' : 'Create the first admin' ?></a>
+    Forgot your login? <a href="reset_credentials.php" class="fw-semibold text-decoration-none">Reset credentials</a>
 </p>
 <?php require __DIR__ . '/includes/auth_bottom.php'; ?>
