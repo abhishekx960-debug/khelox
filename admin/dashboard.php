@@ -30,8 +30,8 @@ $cards = [
 ];
 ?>
 <div class="mb-4">
-    <h2 class="h4 fw-bold mb-1">Hello, <?= e(explode(' ', $_SESSION['admin_name'])[0]) ?> 👋</h2>
-    <div class="text-muted">Aaj ka overview ye raha.</div>
+    <h2 class="h4 fw-bold mb-1">Hello, <?= e(explode(' ', $_SESSION['admin_name'])[0]) ?></h2>
+    <div class="text-muted">Here is today's platform overview.</div>
 </div>
 
 <div class="row g-3 mb-4">
@@ -100,7 +100,7 @@ $extraJs = '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.
 <script>
 new Chart(document.getElementById("signups"),{
   type:"bar",
-  data:{labels:' . json_encode($labels) . ',datasets:[{data:' . json_encode($data) . ',backgroundColor:"rgba(91,91,214,.85)",borderRadius:8,maxBarThickness:42}]},
+  data:{labels:' . json_encode($labels) . ',datasets:[{data:' . json_encode($data) . ',backgroundColor:"rgba(79,70,229,.85)",borderRadius:8,maxBarThickness:42}]},
   options:{maintainAspectRatio:false,plugins:{legend:{display:false}},
     scales:{y:{beginAtZero:true,ticks:{precision:0},grid:{color:"#eef0f6"}},x:{grid:{display:false}}}}
 });

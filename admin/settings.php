@@ -167,7 +167,7 @@ $qr = setting('deposit_qr');
                     <button class="btn btn-primary w-100"><i class="bi bi-check-lg me-1"></i>Save Deposit Details</button>
                 </form>
                 <?php if ($qr): ?>
-                    <form method="post" class="mt-2" onsubmit="return confirm('Remove this QR code?')">
+                    <form method="post" class="mt-2" data-confirm="Remove the current deposit QR code?" data-confirm-title="Remove QR" data-confirm-ok="Remove">
                         <?= csrf_field() ?>
                         <input type="hidden" name="action" value="remove_qr">
                         <button class="btn btn-outline-danger w-100"><i class="bi bi-trash me-1"></i>Remove QR</button>

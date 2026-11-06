@@ -277,6 +277,48 @@ class TournamentModel {
       );
 }
 
+class SpinStatus {
+  final int limit;
+  final int used;
+  final int remaining;
+  final int resetIn; // seconds, computed by server clock
+  final List<int> rewards;
+  final double fcoin;
+
+  const SpinStatus({
+    required this.limit,
+    required this.used,
+    required this.remaining,
+    required this.resetIn,
+    required this.rewards,
+    required this.fcoin,
+  });
+
+  factory SpinStatus.fromJson(Map<String, dynamic> j) => SpinStatus(
+        limit: int.tryParse('${j['limit'] ?? 10}') ?? 10,
+        used: int.tryParse('${j['used'] ?? 0}') ?? 0,
+        remaining: int.tryParse('${j['remaining'] ?? 0}') ?? 0,
+        resetIn: int.tryParse('${j['reset_in'] ?? 0}') ?? 0,
+        rewards: [
+          if (j['rewards'] is List)
+            for (final r in j['rewards'] as List) int.tryParse('$r') ?? 0,
+        ],
+        fcoin: double.tryParse('${j['fcoin'] ?? 0}') ?? 0,
+      );
+}
+
+class SpinResult {
+  final int index;
+  final int reward;
+  final SpinStatus status;
+
+  const SpinResult({
+    required this.index,
+    required this.reward,
+    required this.status,
+  });
+}
+
 class ApiService {
   static Future<Map<String, dynamic>> _post(
     String endpoint,
@@ -432,6 +474,47 @@ class ApiService {
     });
     return WithdrawalModel.fromJson(
       data['withdrawal'] as Map<String, dynamic>,
+    );
+  }
+
+  static Future<SpinStatus> fetchSpinStatus(int userId) async {
+    final data = await _post('spin.php', {
+      'action': 'status',
+      'user_id': userId,
+    });
+    return SpinStatus.fromJson(data['spin'] as Map<String, dynamic>);
+  }
+
+  static Future<SpinResult> spinWheel(int userId) async {
+    final data = await _post('spin.php', {
+      'action': 'spin',
+      'user_id': userId,
+    });
+    return SpinResult(
+      index: int.tryParse('${data['index'] ?? 0}') ?? 0,
+      reward: int.tryParse('${data['reward'] ?? 0}') ?? 0,
+      status: SpinStatus.fromJson(data['spin'] as Map<String, dynamic>),
+    );
+  }
+
+  static Future<SpinStatus> fetchScratchStatus(int userId) async {
+    final data = await _post('scratch.php', {
+      'action': 'status',
+      'user_id': userId,
+    });
+    return SpinStatus.fromJson(data['scratch'] as Map<String, dynamic>);
+  }
+
+  /// Gets a new card from server (counts against limit, reward credited).
+  static Future<SpinResult> newScratchCard(int userId) async {
+    final data = await _post('scratch.php', {
+      'action': 'scratch',
+      'user_id': userId,
+    });
+    return SpinResult(
+      index: int.tryParse('${data['index'] ?? 0}') ?? 0,
+      reward: int.tryParse('${data['reward'] ?? 0}') ?? 0,
+      status: SpinStatus.fromJson(data['scratch'] as Map<String, dynamic>),
     );
   }
 }

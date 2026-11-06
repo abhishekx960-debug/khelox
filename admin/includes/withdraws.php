@@ -290,7 +290,7 @@ $max = (float)setting($type . '_max_withdraw', '0');
                                     data-name="<?= e((string)($r['user_name'] ?? '')) ?>"
                                     title="Reject"><i class="bi bi-x-lg"></i></button>
                         <?php endif; ?>
-                        <form method="post" class="d-inline" onsubmit="return confirm('Delete this withdrawal? It will also be removed from the user side.')">
+                        <form method="post" class="d-inline" data-confirm="This withdrawal will also be removed from the user side." data-confirm-title="Delete withdrawal" data-confirm-ok="Delete">
                             <?= csrf_field() ?>
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
@@ -308,22 +308,22 @@ $max = (float)setting($type . '_max_withdraw', '0');
 
 <div class="modal fade" id="rejectModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <form method="post" class="modal-content border-0 shadow" style="border-radius:1rem">
+        <form method="post" class="modal-content">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="reject">
             <input type="hidden" name="id" id="r-id">
             <input type="hidden" name="return_status" value="<?= e($status) ?>">
-            <div class="modal-header border-0 pb-0">
-                <div><h5 class="modal-title fw-bold">Reject Withdraw</h5><small class="text-muted" id="r-name"></small></div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header">
+                <div><h5 class="modal-title">Reject Withdraw</h5><small class="text-muted" id="r-name"></small></div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <label class="form-label">Reason (shown to the user)</label>
                 <textarea name="reason" class="form-control" rows="3" maxlength="255" placeholder="UPI details are incorrect..." required></textarea>
             </div>
-            <div class="modal-footer border-0 pt-0">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-danger px-4">Reject</button>
+                <button type="submit" class="btn btn-danger px-4">Reject</button>
             </div>
         </form>
     </div>

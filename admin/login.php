@@ -42,29 +42,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$authTitle = 'Welcome back';
-$authSub   = 'Sign in to your admin account';
+$authTitle = 'Sign in';
+$authSub   = 'Use your admin credentials to continue';
 require __DIR__ . '/includes/auth_top.php';
 ?>
-<?php if ($error): ?><div class="alert alert-danger py-2"><i class="bi bi-exclamation-circle me-1"></i><?= e($error) ?></div><?php endif; ?>
-<form method="post" autocomplete="off">
+<?php if ($error): ?><div class="d-none" data-flash-type="danger" data-flash-msg="<?= e($error) ?>"></div><?php endif; ?>
+<form method="post" autocomplete="username">
     <?= csrf_field() ?>
     <div class="mb-3">
-        <label class="form-label">Username</label>
+        <label class="form-label" for="username">Username</label>
         <div class="input-group">
             <span class="input-group-text"><i class="bi bi-person"></i></span>
-            <input type="text" name="username" class="form-control" placeholder="username" value="<?= e($username) ?>" required autofocus>
+            <input type="text" id="username" name="username" class="form-control" placeholder="Enter username" value="<?= e($username) ?>" required autofocus autocomplete="username">
         </div>
     </div>
     <div class="mb-4">
-        <label class="form-label">Password</label>
+        <label class="form-label" for="pw">Password</label>
         <div class="input-group">
             <span class="input-group-text"><i class="bi bi-lock"></i></span>
-            <input type="password" id="pw" name="password" class="form-control" placeholder="••••••••" required>
-            <button type="button" class="btn btn-light border" data-toggle-pass="#pw"><i class="bi bi-eye"></i></button>
+            <input type="password" id="pw" name="password" class="form-control" placeholder="Enter password" required autocomplete="current-password">
+            <button type="button" class="btn btn-light border" data-toggle-pass="#pw" aria-label="Show password"><i class="bi bi-eye"></i></button>
         </div>
     </div>
-    <button class="btn btn-primary w-100 py-2">Login <i class="bi bi-arrow-right ms-1"></i></button>
+    <button type="submit" class="btn btn-primary w-100 auth-submit">Sign in <i class="bi bi-arrow-right ms-1"></i></button>
 </form>
 <p class="text-center text-muted small mt-4 mb-0">
     Forgot your login? <a href="reset_credentials.php" class="fw-semibold text-decoration-none">Reset credentials</a>

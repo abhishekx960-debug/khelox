@@ -71,10 +71,10 @@ $authSub   = 'Enter the reset key to set a new username / password';
 require __DIR__ . '/includes/auth_top.php';
 ?>
 <?php if ($keyIsDefault): ?>
-    <div class="alert alert-warning py-2 small">Reset is locked. Change <code>ADMIN_INVITE_KEY</code> in <code>config.php</code> to a long secret, then use it here.</div>
+    <div class="d-none" data-flash-type="warning" data-flash-msg="Reset is locked. Set a strong ADMIN_INVITE_KEY in config.php first."></div>
 <?php endif; ?>
 <?php if ($errors): ?>
-    <div class="alert alert-danger py-2"><ul class="mb-0 ps-3 small"><?php foreach ($errors as $er): ?><li><?= e($er) ?></li><?php endforeach; ?></ul></div>
+    <div class="d-none" data-flash-type="danger" data-flash-msg="<?= e(implode(' · ', $errors)) ?>"></div>
 <?php endif; ?>
 <form method="post" autocomplete="off">
     <?= csrf_field() ?>
@@ -106,7 +106,7 @@ require __DIR__ . '/includes/auth_top.php';
                 <input type="password" name="password2" class="form-control" minlength="8" required></div>
         </div>
     </div>
-    <button class="btn btn-primary w-100 py-2 mt-2" <?= $keyIsDefault ? 'disabled' : '' ?>>Reset Credentials</button>
+    <button type="submit" class="btn btn-primary w-100 auth-submit mt-2" <?= $keyIsDefault ? 'disabled' : '' ?>>Reset credentials</button>
 </form>
 <p class="text-center text-muted small mt-4 mb-0"><a href="login.php" class="fw-semibold text-decoration-none"><i class="bi bi-arrow-left me-1"></i>Back to login</a></p>
 <?php require __DIR__ . '/includes/auth_bottom.php'; ?>

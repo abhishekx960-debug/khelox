@@ -22,6 +22,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'coins
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reset_limits') {
+    csrf_check();
+    $scope = ($_POST['scope'] ?? '') === 'all' ? 'all' : 'user';
+    $id = (int)($_POST['id'] ?? 0);
+    if ($scope === 'user' && $id <= 0) {
+        flash('danger', 'Invalid user');
+    } else {
+        $done = 0;
+        // Missing table = nobody used that game yet, nothing to reset.
+        foreach (['spin_state', 'scratch_state'] as $tbl) {
+            try {
+                if ($scope === 'all') {
+                    $pdo->exec("DELETE FROM $tbl");
+                } else {
+                    $pdo->prepare("DELETE FROM $tbl WHERE user_id = ?")->execute([$id]);
+                }
+                $done++;
+            } catch (PDOException $e) {
+            }
+        }
+        flash('success', $scope === 'all'
+            ? 'Sabhi users ki Spin + Scratch limit reset ho gayi'
+            : 'User ki Spin + Scratch limit reset ho gayi');
+    }
+    header('Location: users.php?' . http_build_query(['q' => $_GET['q'] ?? '', 'page' => $_GET['page'] ?? 1]));
+    exit;
+}
+
 $pageTitle = 'Users';
 $active = 'users';
 require __DIR__ . '/includes/header.php';
@@ -50,6 +78,14 @@ $users = $st->fetchAll();
     <div class="card-header">
         <div class="row g-2 align-items-center">
             <div class="col-md"><h2>All Users <span class="text-muted fw-normal">(<?= number_format($total) ?>)</span></h2></div>
+            <div class="col-md-auto">
+                <form method="post" onsubmit="return confirm('Sabhi users ki Spin + Scratch limit reset karni hai?');">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="action" value="reset_limits">
+                    <input type="hidden" name="scope" value="all">
+                    <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset All Limits</button>
+                </form>
+            </div>
             <div class="col-md-5 col-lg-4">
                 <form method="get" class="input-group">
                     <span class="input-group-text"><i class="bi bi-search"></i></span>
@@ -89,6 +125,15 @@ $users = $st->fetchAll();
                                 data-f="<?= e($u['fcoin']) ?>" data-d="<?= e($u['dcoin']) ?>" data-w="<?= e($u['wcoin']) ?>">
                             <i class="bi bi-pencil-square me-1"></i>Coins
                         </button>
+                        <form method="post" class="d-inline" onsubmit="return confirm('Is user ki Spin + Scratch limit reset karni hai?');">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="action" value="reset_limits">
+                            <input type="hidden" name="scope" value="user">
+                            <input type="hidden" name="id" value="<?= (int)$u['id'] ?>">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Reset Spin + Scratch limit">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>Limit
+                            </button>
+                        </form>
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -112,22 +157,22 @@ $users = $st->fetchAll();
 
 <div class="modal fade" id="coinModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <form method="post" class="modal-content border-0 shadow" style="border-radius:1rem">
+        <form method="post" class="modal-content">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="coins">
             <input type="hidden" name="id" id="m-id">
-            <div class="modal-header border-0 pb-0">
-                <div><h5 class="modal-title fw-bold">Edit Coins</h5><small class="text-muted" id="m-name"></small></div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header">
+                <div><h5 class="modal-title">Edit Coins</h5><small class="text-muted" id="m-name"></small></div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3"><label class="form-label">FCoin</label><input type="number" step="0.01" min="0" name="fcoin" id="m-f" class="form-control" required></div>
                 <div class="mb-3"><label class="form-label">DCoin</label><input type="number" step="0.01" min="0" name="dcoin" id="m-d" class="form-control" required></div>
                 <div><label class="form-label">WCoin</label><input type="number" step="0.01" min="0" name="wcoin" id="m-w" class="form-control" required></div>
             </div>
-            <div class="modal-footer border-0 pt-0">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-primary px-4">Save</button>
+                <button type="submit" class="btn btn-primary px-4">Save</button>
             </div>
         </form>
     </div>

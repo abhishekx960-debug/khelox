@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/coin_chip.dart';
 import '../widgets/khelox_app_bar.dart';
 
 class SpinWheelScreen extends StatefulWidget {
@@ -11,51 +14,156 @@ class SpinWheelScreen extends StatefulWidget {
 }
 
 class _SpinWheelScreenState extends State<SpinWheelScreen>
-    with SingleTickerProviderStateMixin {
-  static const _rewards = <int>[10, 25, 5, 50, 100, 0, 200, 20];
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+  // Fallback only. Server sends the real list (same order).
+  static const _defaultRewards = <int>[10, 25, 5, 50, 100, 0, 200, 20];
   static const _colors = <Color>[AppColors.gold, AppColors.cyan];
 
   late final AnimationController _ctrl;
   Animation<double> _anim = const AlwaysStoppedAnimation(0.0);
   double _angle = 0;
   bool _spinning = false;
+  bool _requesting = false;
+
+  List<int> _rewards = _defaultRewards;
+  SpinStatus? _status;
+  bool _loading = true;
+  String? _loadError;
+
+  // Countdown uses Stopwatch (monotonic), NOT device date/time.
+  // Base seconds come from server; device clock change cannot affect it.
+  final Stopwatch _sw = Stopwatch();
+  int _baseResetSecs = 0;
+  Timer? _tick;
+  bool _resyncing = false;
+
+  int get _userId => UserStore.instance.user.value?.id ?? 0;
+  int get _remaining => _status?.remaining ?? 0;
+  int get _limit => _status?.limit ?? 10;
+
+  int get _secsLeft {
+    final left = _baseResetSecs - _sw.elapsed.inSeconds;
+    return left < 0 ? 0 : left;
+  }
+
+  bool get _limitReached => _status != null && _remaining <= 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _ctrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 4200),
     )..addListener(() {
         setState(() => _angle = _anim.value);
       });
+    _tick = Timer.periodic(const Duration(seconds: 1), (_) => _onTick());
+    _loadStatus();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _tick?.cancel();
     _ctrl.dispose();
     super.dispose();
   }
 
-  int _indexAt(double angle) {
-    const n = 8;
-    const seg = 2 * math.pi / n;
-    var a = (-math.pi / 2 - angle) % (2 * math.pi);
-    if (a < 0) a += 2 * math.pi;
-    return (a / seg).floor() % n;
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !_spinning) _loadStatus();
+  }
+
+  void _applyStatus(SpinStatus st) {
+    _status = st;
+    if (st.rewards.length >= 2) _rewards = st.rewards;
+    _baseResetSecs = st.resetIn;
+    _sw
+      ..reset()
+      ..start();
+  }
+
+  Future<void> _loadStatus() async {
+    if (_resyncing) return;
+    _resyncing = true;
+    try {
+      final st = await ApiService.fetchSpinStatus(_userId);
+      if (!mounted) return;
+      setState(() {
+        _applyStatus(st);
+        _loading = false;
+        _loadError = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        if (_status == null) _loadError = e.toString();
+      });
+    } finally {
+      _resyncing = false;
+    }
+  }
+
+  void _onTick() {
+    if (!mounted) return;
+    // Limit window finished -> ask server for fresh limit.
+    if (_limitReached && _secsLeft == 0 && !_spinning) {
+      _loadStatus();
+    }
+    if (_limitReached) setState(() {});
+  }
+
+  String _fmt(int total) {
+    final h = (total ~/ 3600).toString().padLeft(2, '0');
+    final m = ((total % 3600) ~/ 60).toString().padLeft(2, '0');
+    final s = (total % 60).toString().padLeft(2, '0');
+    return '$h:$m:$s';
   }
 
   Future<void> _spin() async {
-    if (_spinning) return;
+    if (_spinning || _requesting || _limitReached) return;
+    setState(() => _requesting = true);
+
+    // Server decides reward + enforces limit.
+    SpinResult result;
+    try {
+      result = await ApiService.spinWheel(_userId);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _requesting = false);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.toString())));
+      _loadStatus(); // limit might have changed
+      return;
+    }
+    if (!mounted) return;
+
+    if (result.status.rewards.length >= 2) _rewards = result.status.rewards;
+    final n = _rewards.length;
+    final idx = result.index.clamp(0, n - 1);
+    final seg = 2 * math.pi / n;
     final rnd = math.Random();
+
+    // Land pointer inside segment [idx], away from the edges.
+    final inSeg = seg * (0.15 + rnd.nextDouble() * 0.7);
+    final target = -math.pi / 2 - (idx * seg + inSeg);
     final start = _angle;
-    final end = start +
-        2 * math.pi * (5 + rnd.nextInt(3)) +
-        rnd.nextDouble() * 2 * math.pi;
+    var delta = (target - start) % (2 * math.pi);
+    if (delta < 0) delta += 2 * math.pi;
+    final end = start + 2 * math.pi * (5 + rnd.nextInt(3)) + delta;
+
     _anim = Tween<double>(begin: start, end: end).animate(
       CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic),
     );
-    setState(() => _spinning = true);
+    setState(() {
+      _requesting = false;
+      _spinning = true;
+      // spins left / timer update right away (server truth)
+      _applyStatus(result.status);
+    });
     _ctrl.reset();
     await _ctrl.forward();
     if (!mounted) return;
@@ -63,7 +171,8 @@ class _SpinWheelScreenState extends State<SpinWheelScreen>
       _angle = _anim.value;
       _spinning = false;
     });
-    _showResult(_rewards[_indexAt(_angle)]);
+    UserStore.instance.refresh(); // top-right Fcoin chip updates
+    _showResult(result.reward);
   }
 
   void _showResult(int reward) {
@@ -97,7 +206,16 @@ class _SpinWheelScreenState extends State<SpinWheelScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const KheloxAppBar('Spin Wheel'),
+      appBar: KheloxAppBar(
+        'Spin Wheel',
+        actions: [
+          ValueListenableBuilder<UserModel?>(
+            valueListenable: UserStore.instance.user,
+            builder: (_, u, __) =>
+                CoinChip(type: CoinType.fcoin, value: u?.fcoin ?? 0),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
         children: [
@@ -150,11 +268,78 @@ class _SpinWheelScreenState extends State<SpinWheelScreen>
           ),
           const SizedBox(height: 30),
           ElevatedButton(
-            onPressed: _spinning ? null : _spin,
-            child: Text(_spinning ? 'SPINNING...' : 'SPIN'),
+            onPressed: (_spinning || _requesting || _loading || _limitReached)
+                ? null
+                : _spin,
+            child: Text(
+              _spinning || _requesting
+                  ? 'SPINNING...'
+                  : _limitReached
+                      ? 'LIMIT REACHED'
+                      : 'SPIN',
+            ),
           ),
+          const SizedBox(height: 16),
+          _buildInfo(),
         ],
       ),
+    );
+  }
+
+  Widget _buildInfo() {
+    if (_loading) {
+      return const Center(
+        child: SizedBox(
+          width: 22,
+          height: 22,
+          child: CircularProgressIndicator(strokeWidth: 2.4),
+        ),
+      );
+    }
+    if (_status == null) {
+      return Column(
+        children: [
+          Text(
+            _loadError ?? 'Could not load spins.',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.mist, fontSize: 13.5),
+          ),
+          TextButton(onPressed: _loadStatus, child: const Text('Retry')),
+        ],
+      );
+    }
+    return Column(
+      children: [
+        Text(
+          'Spins left: $_remaining / $_limit',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 15,
+          ),
+        ),
+        if (_limitReached) ...[
+          const SizedBox(height: 10),
+          const Text(
+            'Limit resets in',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.mist, fontSize: 13),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _fmt(_secsLeft),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontFamily: AppFonts.heading,
+              color: AppColors.gold,
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.5,
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

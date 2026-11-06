@@ -51,7 +51,7 @@ $authSub   = $firstAdmin ? 'First admin - no invite key needed' : 'Invite key is
 require __DIR__ . '/includes/auth_top.php';
 ?>
 <?php if ($errors): ?>
-    <div class="alert alert-danger py-2"><ul class="mb-0 ps-3 small"><?php foreach ($errors as $er): ?><li><?= e($er) ?></li><?php endforeach; ?></ul></div>
+    <div class="d-none" data-flash-type="danger" data-flash-msg="<?= e(implode(' · ', $errors)) ?>"></div>
 <?php endif; ?>
 <form method="post" autocomplete="off">
     <?= csrf_field() ?>
@@ -97,7 +97,7 @@ require __DIR__ . '/includes/auth_top.php';
             <button type="button" class="btn btn-light border" data-toggle-pass="#ik"><i class="bi bi-eye"></i></button></div>
     </div>
     <?php endif; ?>
-    <button class="btn btn-primary w-100 py-2 mt-2">Register</button>
+    <button type="submit" class="btn btn-primary w-100 auth-submit mt-2">Create account</button>
 </form>
 <p class="text-center text-muted small mt-4 mb-0">Already admin? <a href="login.php" class="fw-semibold text-decoration-none">Login</a></p>
 <?php require __DIR__ . '/includes/auth_bottom.php'; ?>

@@ -123,7 +123,7 @@ $badge = ['upcoming' => 'warning', 'ongoing' => 'success', 'results' => 'seconda
                                 <?php endforeach; ?>
                             </select>
                         </form>
-                        <form method="post" class="d-inline" onsubmit="return confirm('Delete this tournament?')">
+                        <form method="post" class="d-inline" data-confirm="This tournament will be removed permanently." data-confirm-title="Delete tournament" data-confirm-ok="Delete">
                             <?= csrf_field() ?>
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= (int)$t['id'] ?>">

@@ -68,7 +68,7 @@ $rules = $pdo->query('SELECT r.id, r.points, r.created_at,
                 <h2 class="mb-0">Rule #<?= (int)$r['id'] ?></h2>
                 <div class="d-flex align-items-center gap-2">
                     <span class="badge rounded-pill badge-soft-secondary px-3 py-2">Used in <?= (int)$r['used'] ?></span>
-                    <form method="post" onsubmit="return confirm('Delete Rule #<?= (int)$r['id'] ?>?')">
+                    <form method="post" data-confirm="Delete Rule #<?= (int)$r['id'] ?>? This cannot be undone." data-confirm-title="Delete rule" data-confirm-ok="Delete">
                         <?= csrf_field() ?>
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">

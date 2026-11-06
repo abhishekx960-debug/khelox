@@ -120,7 +120,7 @@ $items = $pdo->query('SELECT id, title, image, more_info_url, status, created_at
                                     <input type="hidden" name="id" value="<?= (int)$c['id'] ?>">
                                     <button class="btn btn-sm btn-outline-<?= $c['status'] ? 'secondary' : 'success' ?>"><?= $c['status'] ? 'Disable' : 'Enable' ?></button>
                                 </form>
-                                <form method="post" class="d-inline" onsubmit="return confirm('Delete this item?')">
+                                <form method="post" class="d-inline" data-confirm="This carousel will be removed permanently." data-confirm-title="Delete carousel" data-confirm-ok="Delete">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="id" value="<?= (int)$c['id'] ?>">

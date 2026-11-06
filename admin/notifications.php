@@ -92,7 +92,7 @@ $items = $pdo->query('SELECT id, title, message, status, created_at FROM notific
                                     <input type="hidden" name="id" value="<?= (int)$n['id'] ?>">
                                     <button class="btn btn-sm btn-outline-<?= $n['status'] ? 'secondary' : 'success' ?>"><?= $n['status'] ? 'Disable' : 'Enable' ?></button>
                                 </form>
-                                <form method="post" class="d-inline" onsubmit="return confirm('Delete this item?')">
+                                <form method="post" class="d-inline" data-confirm="This notification will be removed permanently." data-confirm-title="Delete notification" data-confirm-ok="Delete">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="id" value="<?= (int)$n['id'] ?>">

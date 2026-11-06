@@ -47,7 +47,7 @@ $admins = $pdo->query('SELECT id, name, username, email, phone, status, last_log
                     <td><span class="badge rounded-pill badge-soft-<?= $a['status'] ? 'success' : 'secondary' ?> px-3 py-2"><?= $a['status'] ? 'Active' : 'Disabled' ?></span></td>
                     <td class="text-end">
                         <?php if (!$me): ?>
-                        <form method="post" class="d-inline" onsubmit="return confirm('Are you sure?')">
+                        <form method="post" class="d-inline" data-confirm="This will change the admin account status." data-confirm-title="Update admin status" data-confirm-ok="Update">
                             <?= csrf_field() ?>
                             <input type="hidden" name="action" value="toggle">
                             <input type="hidden" name="id" value="<?= (int)$a['id'] ?>">
